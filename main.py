@@ -1,4 +1,5 @@
 import pandas as pd
+import scipy.stats as stats
 import scipy.io as sio
 import numpy as np
 
@@ -25,16 +26,21 @@ def filter_for_emotion(df, emotion):
     # emotion is an int
     emo_df = df.copy(deep=True)
     #emo_df.loc[emo_df[0] == emotion, 0] = 100
-    emo_df[0] = np.where(df[0] == emotion, 1, 0);
+    emo_df[0] = np.where(df[0] == emotion, 1, 0)
     return emo_df
 
 # DECISION TREE LEARNING
 
+def i(p, n) :
+    term = p/(p+n)
+    return stats.entropy([term, 1-term], base=2)
+
 # TESTING
 labels, data = load_raw_data()
 df = to_dataframe(labels, data)
-print(filter_for_emotion(df, emo['surprise']))
+# print(filter_for_emotion(df, emo['surprise']))
 print("-----------")
+print(i(1 ,1))
 print("-----------")
-print(df)
+# print(df)
 
