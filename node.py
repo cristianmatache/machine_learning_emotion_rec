@@ -5,14 +5,17 @@ class Node:
         self.op = node_label
         self.left = None
         self.right = None
+        self.kids = [left, right]
         self.isLeaf = false
         self.thisClass = -1
 
     def set_left(self, child):
         self.left = child
+        kids[0] = child
 
     def set_right(self, child):
         self.right = child
+        kids[1] = child
 
     def set_isLeaf(self, value):
         self.isLeaf = value
@@ -34,12 +37,13 @@ class Node:
 
 
     # TREE STRUCTURE - Utility functions
-    def flatten_tree(self, root):
-        print(str(root.op) + " ")
-        if root.left:
-            flatten_tree(self, root.left)
-        if root.right:
-            flatten_tree(self, root.right)
+    def flatten_tree(root):
+        print(str(root.op), end='')
+        if root.kids:
+            for kid in root.kids:
+                print('[', end='')
+                flatten_tree(kid)
+                print(']', end='')
 
     def print_tree(self, root):
         flatten_tree(root)

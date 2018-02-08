@@ -8,7 +8,7 @@ import os
 # MACROS
 file_path1 = 'Data/cleandata_students.mat'
 muscles_indices = list(range(1, 46))
-labels = {'anger': 1, 'disgust': 2, 'fear': 3, 'happiness': 4, 'sadness': 5, 'surprise': 6}
+emo = {'anger': 1, 'disgust': 2, 'fear': 3, 'happiness': 4, 'sadness': 5, 'surprise': 6}
 
 # LOADING
 def load_raw_data():
@@ -30,10 +30,12 @@ def filter_for_emotion(df, emotion):
 
 
 # DECISION TREE LEARNING
-
-def DECISION_TREE_LEARNING(examples, attr, bin_targets):
+def decision_tree(examples, attr, bin_targets):
     pass
 
+
+def gain(attr):
+    pass
 # Information Gain
 def i(p, n):
     term = p/(p+n)
@@ -47,10 +49,10 @@ def main():
 
     # TESTING
     labels, data = load_raw_data()
-    print(labels)
-    print(data)
     df = to_dataframe(labels, data)
-    # print(filter_for_emotion(df, emo['surprise']))
+    
+    decision_tree(data, data[0], filter_for_emotion(df, emo['surprise']))
+    print(filter_for_emotion(df, emo['surprise']))
 
 
 if __name__ == "__main__": main()
