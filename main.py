@@ -2,12 +2,13 @@ import pandas as pd
 import scipy.stats as stats
 import scipy.io as sio
 import numpy as np
+import os
 # TODO: extract each thing in capitals in different files
 
 # MACROS
-file_path1 = '\Data\cleandata_students'
+file_path1 = 'Data/cleandata_students.mat'
 muscles_indices = list(range(1, 46))
-classses = {'anger': 1, 'disgust': 2, 'fear': 3, 'happiness': 4, 'sadness': 5, 'surprise': 6}
+labels = {'anger': 1, 'disgust': 2, 'fear': 3, 'happiness': 4, 'sadness': 5, 'surprise': 6}
 
 # LOADING
 def load_raw_data():
@@ -29,26 +30,27 @@ def filter_for_emotion(df, emotion):
 
 
 # DECISION TREE LEARNING
-def i(p, n) :
+
+def DECISION_TREE_LEARNING(examples, attr, bin_targets):
+    pass
+
+# Information Gain
+def i(p, n):
     term = p/(p+n)
     return stats.entropy([term, 1-term], base=2)
 
+#Remainder
+def r(attr):
+    pass
 
 def main():
 
     # TESTING
     labels, data = load_raw_data()
+    print(labels)
+    print(data)
     df = to_dataframe(labels, data)
     # print(filter_for_emotion(df, emo['surprise']))
 
-    print("-----------")
-    t2 = Node(2)
-    t3 = Node(3)
-    t1 = Node(1)
-    t4 = Node(4)
-    t5 = Node(5)
 
-    t3.kids = [t5]
-    t2.kids = [t4]
-    print_tree(t1)
-    print("-----------")
+if __name__ == "__main__": main()

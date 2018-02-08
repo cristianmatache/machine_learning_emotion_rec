@@ -1,11 +1,12 @@
 # TREE STRUCTURE - Node
 class Node:
 
-    def __init__(self, muscleNr):
+    def __init__(self, node_label):
         self.op = node_label
         self.left = None
         self.right = None
-        self.isEmotion = false
+        self.isLeaf = false
+        self.thisClass = -1
 
     def set_left(self, child):
         self.left = child
@@ -13,8 +14,11 @@ class Node:
     def set_right(self, child):
         self.right = child
 
-    def set_isEmotion(self, value):
-        self.isEmotion = value
+    def set_isLeaf(self, value):
+        self.isLeaf = value
+
+    def set_thisClass(self, value):
+        self.thisClass = value
 
     def get_left(self, value):
         return self.left
@@ -24,6 +28,10 @@ class Node:
 
     def get_isEmotion():
         return isEmotion
+
+    def get_thisClass(self):
+        return thisClass
+
 
     # TREE STRUCTURE - Utility functions
     def flatten_tree(self, root):
