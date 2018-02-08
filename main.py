@@ -7,8 +7,7 @@ import numpy as np
 # MACROS
 file_path1 = '\Data\cleandata_students'
 muscles_indices = list(range(1, 46))
-emo = {'anger': 1, 'disgust': 2, 'fear': 3, 'happiness': 4, 'sadness': 5, 'surprise': 6}
-classes = {'empty': 0, 'negative': 1, 'positive': 2}
+classses = {'anger': 1, 'disgust': 2, 'fear': 3, 'happiness': 4, 'sadness': 5, 'surprise': 6}
 
 # LOADING
 def load_raw_data():
