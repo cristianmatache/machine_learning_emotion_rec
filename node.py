@@ -1,40 +1,25 @@
-# TREE STRUCTURE - Node
-class Node:
+# Tree Structure - TreeNode in Decision Tree
+class TreeNode:
 
     def __init__(self, node_label):
         self.op = node_label
-        self.left = None
-        self.right = None
-        self.kids = [left, right]
-        self.isLeaf = false
-        self.thisClass = -1
+        self.kids = [None] * 2
+        self.leaf = False
 
-    def set_left(self, child):
-        self.left = child
-        kids[0] = child
+    def __str__(self):
+        if self.op == None:
+            return ""
+        else:
+            return str(self.op) + " left " + str(self.kids[0]) + " right " + str(self.kids[1])
 
-    def set_right(self, child):
-        self.right = child
-        kids[1] = child
+    def set_leaf(self):
+        self.leaf = True
 
-    def set_isLeaf(self, value):
-        self.isLeaf = value
+    def set_child(self, index, child):
+        self.kids[index] = child
 
-    def set_thisClass(self, value):
-        self.thisClass = value
-
-    def get_left(self, value):
-        return self.left
-
-    def get_right(self, value):
-        return self.right
-
-    def get_isEmotion():
-        return isEmotion
-
-    def get_thisClass(self):
-        return thisClass
-
+    def get_child(self, index):
+        return self.kids[index]
 
     # TREE STRUCTURE - Utility functions
     def flatten_tree(root):
