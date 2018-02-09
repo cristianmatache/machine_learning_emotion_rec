@@ -7,7 +7,7 @@ from node import TreeNode
 # TODO: extract each thing in capitals in different files
 
 # Macros
-CLEAN_DATA_PATH = 'Data/cleandata_students.mat'
+CLEAN_DATA_PATH = 'Data/noisydata_students.mat'
 AU_INDICES = list(range(1, 46))
 emotion = {'anger': 1, 'disgust': 2, 'fear': 3, 'happiness': 4, 'sadness': 5, 'surprise': 6}
 
@@ -84,23 +84,17 @@ def majority_value(bin_targets):
     return res
 
 def choose_best_decision_attr(examples, attributes, bin_targets):
-    def f(eg_val, attr_val):
-        return pd_joint[(pd_joint[0]==eg_val) & (pd_joint[attribute]==attr_val)].shape[0]
+    def f(eg_val, attr_val, attribute):
+        return pd_joint[(pd_joint[0] == eg_val) & (pd_joint[attribute] == attr_val)].shape[0]
 
-    max_gain = -sys.maxsize - 1
-    index_gain = -1
     pd_joint = pd.concat([bin_targets, examples], axis=1)
 
-    for attribute in attributes:
-        p1, n1, p0, n0 = f(1,1), f(0,1), f(1,0), f(0,0)
-        curr_gain = gain(p1+p0, n1+n0, p0, n0, p1, n1)
-        if curr_gain > max_gain:
-            index_gain = attribute
-            max_gain = curr_gain
+    def get_gain(attr):
+        p1, n1, p0, n0 = f(1,1,attr), f(0,1,attr), f(1,0,attr), f(0,0,attr)
+        return gain(p1+p0, n1+n0, p0, n0, p1, n1)
 
-    if max_gain == -sys.maxsize - 1:
-        raise ValueError('Index gain is original value...')        
-
+    all_gains = [(get_gain(a), a) for a in attributes]
+    (max_gain, index_gain) = max(all_gains, key=lambda x: x[0]) if all_gains else (-1, -1)
     return index_gain
 
 
@@ -135,8 +129,8 @@ def main():
 
         TreeNode.traverse(root)
 
- #       for i in AU_INDICES:
-#            TreeNode.dfs(root, df_data.loc[i], binary_targets.loc[i].at[0])
+        for i in AU_INDICES:
+           TreeNode.dfs(root, df_data.loc[i], binary_targets.loc[i].at[0])
         print()
         print("Done with emotion: ", e)
         print()
