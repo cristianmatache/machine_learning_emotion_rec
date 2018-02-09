@@ -1,11 +1,8 @@
-import logging
 import sys
 import pandas as pd
 import scipy.stats as stats
 import scipy.io as sio
 import numpy as np
-import os
-import math
 from node import TreeNode
 # TODO: extract each thing in capitals in different files
 
@@ -87,33 +84,16 @@ def majority_value(bin_targets):
     return res
 
 def choose_best_decision_attr(examples, attributes, bin_targets):
+    def f(eg_val, attr_val):
+        return pd_joint[(pd_joint[0]==eg_val) & (pd_joint[attribute]==attr_val)].shape[0]
+
     max_gain = -sys.maxsize - 1
     index_gain = -1
-    # p and n: training data has p positive and n negative examples
-    p = len(bin_targets.loc[bin_targets[0] == 1].index)
-    n = len(bin_targets.loc[bin_targets[0] == 0].index)
+    pd_joint = pd.concat([bin_targets, examples], axis=1)
 
     for attribute in attributes:
-        examples_pos = examples.loc[examples[attribute] == 1]        
-        examples_neg = examples.loc[examples[attribute] == 0]
-        index_pos = examples_pos.index.values
-        index_neg = examples_neg.index.values
-
-        p0 = n0 = p1 = n1 = 0
-
-        for index in index_pos:
-            if bin_targets[0][index] == 1:
-                p1 = p1 + 1
-            else:
-                n1 = n1 + 1    
-
-        for index in index_neg:
-            if bin_targets[0][index] == 1:
-                p0 = p0 + 1
-            else:
-                n0 = n0 + 1    
-
-        curr_gain = gain(p, n, p0, n0, p1, n1)
+        p1, n1, p0, n0 = f(1,1), f(0,1), f(1,0), f(0,0)
+        curr_gain = gain(p1+p0, n1+n0, p0, n0, p1, n1)
         if curr_gain > max_gain:
             index_gain = attribute
             max_gain = curr_gain
@@ -140,29 +120,23 @@ def get_info_gain(p, n):
 
 # Remainder(attribute) = (p0 + n0)/(p + n) * I(p0, n0) + (p1 + n1)/(p + n) * I(p1, n1)
 def get_remainder(p, n, p0, n0, p1, n1):
-    if p + n == 0:
-        return 0
-    return ((p0 + n0)/(p + n)) * get_info_gain(p0, n0) + ((p1 + n1)/(p + n)) * get_info_gain(p1, n1)
+    return ((p0 + n0)/(p + n)) * get_info_gain(p0, n0) + ((p1 + n1)/(p + n)) * get_info_gain(p1, n1) if p+n != 0 else 0
 
 # Testing
 def main():
     labels, data = load_raw_data()
     df_labels, df_data = to_dataframe(labels, data)
-
-    print()
-
+    print("----------------------------------- LOADING COMPLETED ----------------------------------- \n")
     for e in emotion.keys():
-        print("Decision tree building for emotion", e)
-
+        print("/\ Decision tree building for emotion: ", e)
         binary_targets = filter_for_emotion(df_labels, emotion[e])
-
         root = decision_tree(df_data, set(AU_INDICES), binary_targets)
-        print("Decision tree built")
+        print("/\ Decision tree built")
 
         for i in AU_INDICES:
             TreeNode.dfs(root, df_data.loc[i], binary_targets.loc[i].at[0])
         print()
-        print("Done with emotion", e)
+        print("Done with emotion: ", e)
         print()
 
 if __name__ == "__main__": main()
