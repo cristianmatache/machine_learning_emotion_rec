@@ -1,3 +1,5 @@
+import logging
+import sys
 import pandas as pd
 import scipy.stats as stats
 import scipy.io as sio
@@ -8,48 +10,46 @@ from node import TreeNode
 # TODO: extract each thing in capitals in different files
 
 # Macros
-clean_data_path = 'Data/cleandata_students.mat'
-au_indices = list(range(1, 46))
+CLEAN_DATA_PATH = 'Data/cleandata_students.mat'
+AU_INDICES = list(range(1, 46))
 emotion = {'anger': 1, 'disgust': 2, 'fear': 3, 'happiness': 4, 'sadness': 5, 'surprise': 6}
 
 # Loading data from mat files
 def load_raw_data():
-    mat_contents = sio.loadmat(clean_data_path)
+    print("Loading raw data...")
+    mat_contents = sio.loadmat(CLEAN_DATA_PATH)
     data = mat_contents['x']   # entries/lines which contain the activated AU/muscles
     labels = mat_contents['y'] # the labels from 1-6 of emotions for each entry in data
+    print("Raw data loaded...")    
     return labels, data
 
 # Converting data to DataFrame format
 def to_dataframe(labels, data):
+    print("Converting to data frame started...")    
     df_labels = pd.DataFrame(labels)
-    df_data = pd.DataFrame(data, columns=au_indices)
+    df_data = pd.DataFrame(data, columns=AU_INDICES)
+    print("Converting to data frame done...")    
     return df_labels, df_data
 
-'''
-Filter a vector in df format to be 1 where we have
-this certain emotion and 0 otherwise
-'''
+# Filter a vector in df format to be 1 where we have
+# this certain emotion and 0 otherwise
+# emotion is an int
 def filter_for_emotion(df, emotion):
-    # emotion is an int
+    print("Filtering to binary targets for emotion... ")
     emo_df = [] * 45
     emo_df = np.where(df == emotion, 1, 0)
+    print("Filtering done...")
     return pd.DataFrame(emo_df)
 
-'''
-Decision tree learning
-
-Binary data   - binary matrix with N rows and 45 cols
-              - each row is a list of AUs that describe
-              - a certain emotion
-
-Attributes    - the list of Action Units (AU) that are candidates
-              - for the best attribute at a certain point
-
-Target vector - emotions vector with 1 for a certain emotion
-              - and 0 otherwise
-'''
+# Decision tree learning
+# Binary data   - binary matrix with N rows and 45 cols
+#               - each row is a list of AUs that describe
+#               - a certain emotion
+# Attributes    - the list of Action Units (AU) that are candidates
+#               - for the best attribute at a certain point
+# Target vector - emotions vector with 1 for a certain emotion
+#               - and 0 otherwise
 def decision_tree(examples, attributes, bin_targets):
-
     if examples.empty or not attributes or bin_targets.empty:
         return None
 
@@ -83,38 +83,23 @@ def check_all_same(df):
     return df.apply(lambda x: len(x[-x.isnull()].unique()) == 1 , axis = 0).all()
 
 def majority_value(bin_targets):
-    res = stats.mode(bin_targets[0].values)[0][0][0]
-    print(res)
+    res = stats.mode(bin_targets[0].values)[0][0]
     return res
 
 def choose_best_decision_attr(examples, attributes, bin_targets):
-#    print("Best decision attribute...")
-#    print(attributes)
-    max_gain = 0
-    index_gain = 0
-    # p and n -> training data has p positive and n negative examples
+    max_gain = -sys.maxsize - 1
+    index_gain = -1
+    # p and n: training data has p positive and n negative examples
     p = len(bin_targets.loc[bin_targets[0] == 1].index)
     n = len(bin_targets.loc[bin_targets[0] == 0].index)
 
-#    print("Positives : ", p)
-#    print("Negatives : ", n)
-
     for attribute in attributes:
-
         examples_pos = examples.loc[examples[attribute] == 1]        
         examples_neg = examples.loc[examples[attribute] == 0]
-
         index_pos = examples_pos.index.values
         index_neg = examples_neg.index.values
 
-#        print(index_pos)
-#        print("=======")
-#        print(index_neg)
-
-        p0 = 0 
-        n0 = 0
-        p1 = 0
-        n1 = 0
+        p0 = n0 = p1 = n1 = 0
 
         for index in index_pos:
             if bin_targets[0][index] == 1:
@@ -128,69 +113,56 @@ def choose_best_decision_attr(examples, attributes, bin_targets):
             else:
                 n0 = n0 + 1    
 
-#        print(p0)
-#        print(n0)
-#        print(p1)
-#        print(n1)
-
         curr_gain = gain(p, n, p0, n0, p1, n1)
         if curr_gain > max_gain:
             index_gain = attribute
             max_gain = curr_gain
-#    print("Max gain found ", max_gain)
+
+    if max_gain == -sys.maxsize - 1:
+        raise ValueError('Index gain is original value...')        
+
     return index_gain
 
 
+# Gain(attribute) = I(p, n) – Remainder(attribute)
 def gain(p, n, p0, n0, p1, n1):
-    # Gain(attribute) = I(p, n) – Remainder(attribute)
     return get_info_gain(p, n) - get_remainder(p, n, p0, n0, p1, n1)
 
 # Information Gain I
+# I(p, n) = − p+n log 2 ( p+n ) − p+n log 2 ( p+n ) and
 def get_info_gain(p, n):
-    # I(p, n) = − p+n log 2 ( p+n ) − p+n log 2 ( p+n ) and
+
     if p + n == 0:
         return 0
 
     term = float(p / (p + n))
-#    return -math.log(term, 2) * term - (math.log(1 - term, 2) * (1 - term))
     return stats.entropy([term, 1 - term], base=2)
 
-# Remainder
+# Remainder(attribute) = (p0 + n0)/(p + n) * I(p0, n0) + (p1 + n1)/(p + n) * I(p1, n1)
 def get_remainder(p, n, p0, n0, p1, n1):
-    # Remainder(attribute) = (p0 + n0)/(p + n) * I(p0, n0) + (p1 + n1)/(p + n) * I(p1, n1)
-    return (p0 + n0)/(p + n) * get_info_gain(p0, n0) + (p1 + n1)/(p + n) * get_info_gain(p1, n1)
+    if p + n == 0:
+        return 0
+    return ((p0 + n0)/(p + n)) * get_info_gain(p0, n0) + ((p1 + n1)/(p + n)) * get_info_gain(p1, n1)
 
-def test(df):
-    print(df)
-    print("====")
-    df = df.loc[df[1] == 0]
-    print(df)
-    print("====")
-    print(df.index.values)
-
+# Testing
 def main():
-
-    # Testing
     labels, data = load_raw_data()
     df_labels, df_data = to_dataframe(labels, data)
 
-#    print(df_data.loc[1].to_string())
-
-    binary_targets = filter_for_emotion(df_labels, emotion['surprise'])
-
-#    print(binary_targets.loc[1].to_string())
-
-
-    root = decision_tree(df_data, set(au_indices), binary_targets)
-#    print(root)
-
-#    TreeNode.traverse(root)
-
-
-    for i in au_indices:
-        TreeNode.dfs(root, df_data.loc[i], binary_targets.loc[i].at[0])
     print()
 
-#    print(root.preorder_traversal())
+    for e in emotion.keys():
+        print("Decision tree building for emotion", e)
+
+        binary_targets = filter_for_emotion(df_labels, emotion[e])
+
+        root = decision_tree(df_data, set(AU_INDICES), binary_targets)
+        print("Decision tree built")
+
+        for i in AU_INDICES:
+            TreeNode.dfs(root, df_data.loc[i], binary_targets.loc[i].at[0])
+        print()
+        print("Done with emotion", e)
+        print()
 
 if __name__ == "__main__": main()

@@ -1,7 +1,5 @@
 # Tree Structure - TreeNode in Decision Tree
 class TreeNode:
-
-
     def __init__(self, node_label, leaf=False):
         self.op = node_label
         self.kids = [None] * 2
@@ -26,9 +24,6 @@ class TreeNode:
             else:
                 right = self.kids[1].preorder_traversal()
             return str(self.op) + ", " + left + ", " + right
-
-    def set_leaf(self):
-        self.leaf = True
 
     def set_child(self, index, child):
         self.kids[index] = child
@@ -69,7 +64,7 @@ class TreeNode:
                     next_level.append(TreeNode("'#'"))
             current_level = next_level
 
-    # TREE STRUCTURE - Utility functions
+    # Utility functions
     def flatten_tree(self, root):
         print(str(root.op), end='')
         if root.kids:
