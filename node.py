@@ -37,10 +37,22 @@ class TreeNode:
         return self.kids[index]
 
     @staticmethod
+    def dfs(root, attributes_lists, expectation):
+        if root.leaf:
+            is_correct = root.op == expectation
+            print(is_correct, end=" ")
+        else:
+            index = root.op
+            if attributes_lists.ix[index] == 0:
+                root = TreeNode.dfs(root.kids[0], attributes_lists, expectation)
+            else:
+                root = TreeNode.dfs(root.kids[1], attributes_lists, expectation)
+
+    @staticmethod
     def traverse(root):
         current_level = [root]
         while current_level:
-            print(','.join(str(node) for node in current_level), end=',')
+            print(' '.join(str(node) for node in current_level))
             next_level = list()
             for n in current_level:
 

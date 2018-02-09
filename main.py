@@ -174,13 +174,23 @@ def main():
     labels, data = load_raw_data()
     df_labels, df_data = to_dataframe(labels, data)
 
+#    print(df_data.loc[1].to_string())
+
     binary_targets = filter_for_emotion(df_labels, emotion['surprise'])
+
+#    print(binary_targets.loc[1].to_string())
+
 
     root = decision_tree(df_data, set(au_indices), binary_targets)
 #    print(root)
 
 #    TreeNode.traverse(root)
 
-    print(root.preorder_traversal())
+
+    for i in au_indices:
+        TreeNode.dfs(root, df_data.loc[i], binary_targets.loc[i].at[0])
+    print()
+
+#    print(root.preorder_traversal())
 
 if __name__ == "__main__": main()
