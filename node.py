@@ -1,10 +1,10 @@
 # Tree Structure - TreeNode in Decision Tree
 class TreeNode:
 
-    def __init__(self, node_label):
+    def __init__(self, node_label, leaf=False):
         self.op = node_label
         self.kids = [None] * 2
-        self.leaf = False
+        self.leaf = leaf
 
     def __str__(self):
         if self.op == None:
@@ -22,14 +22,15 @@ class TreeNode:
         return self.kids[index]
 
     # TREE STRUCTURE - Utility functions
-    def flatten_tree(root):
+    def flatten_tree(self, root):
         print(str(root.op), end='')
         if root.kids:
             for kid in root.kids:
-                print('[', end='')
-                flatten_tree(kid)
-                print(']', end='')
+                if kid:
+                    print('[', end='')
+                    self.flatten_tree(kid)
+                    print(']', end='')
 
     def print_tree(self, root):
-        flatten_tree(root)
+        self.flatten_tree(root)
         print()

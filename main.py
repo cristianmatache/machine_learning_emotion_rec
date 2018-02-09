@@ -23,10 +23,12 @@ def load_raw_data():
 def to_dataframe(labels, data):
     df_labels = pd.DataFrame(labels)
     df_data = pd.DataFrame(data, columns=au_indices)
-    return pd.concat([df_labels, df_data], axis=1)
+    return df_labels, df_data
 
-# Filter a vector in df format to be 1 where we have
-# this certain emotion and 0 otherwise
+'''
+Filter a vector in df format to be 1 where we have
+this certain emotion and 0 otherwise
+'''
 def filter_for_emotion(df, emotion):
     # emotion is an int
     emo_df = [] * 45
@@ -47,52 +49,55 @@ Target vector - emotions vector with 1 for a certain emotion
               - and 0 otherwise
 '''
 def decision_tree(examples, attributes, bin_targets):
-    print(bin_targets)
 
-    all_same = bin_targets.apply(lambda x: len(x[-x.isnull()].unique()) == 1 , axis = 0).all()
+    if examples.empty or not attributes or bin_targets.empty:
+        return None
+
+    all_same = check_all_same(bin_targets)
 
     if all_same:
-        leaf = TreeNode(bin_targets[0][0])
-        leaf.set_leaf()
-        return leaf;
+        return TreeNode(bin_targets.iloc[0].iloc[0], True)
     elif not attributes:
         # Majority Value
-        return TreeNode(majority_value(bin_targets))
+        return TreeNode(majority_value(bin_targets), True)
     else:
-        print("No")
         best_attribute = choose_best_decision_attr(examples, attributes, bin_targets)
         tree = TreeNode(best_attribute)
         for vi in range(0, 2):
             examples_i = examples.loc[examples[best_attribute] == vi]
-            bin_targets_i = pd.DataFrame(examples_i.index.values)
+            indices = examples_i.index.values
+            bin_targets_i = bin_targets.ix[indices]
 
             if examples_i.empty:
                 # Majority Value
-                leaf = TreeNode(majority_value(bin_targets))
-                leaf.set_leaf()
-                return leaf
+                return TreeNode(majority_value(bin_targets), True)
             else:
-                print(best_attribute)
-                print(attributes)
                 attr = set(attributes)
-                tree.set_child(vi, decision_tree(examples_i, attr.remove(best_attribute), bin_targets_i))
+                attr.remove(best_attribute)
+                tree.set_child(vi, decision_tree(examples_i, attr, bin_targets_i))
 
         return tree
 
+# Helper functions
+def check_all_same(df):
+    return df.apply(lambda x: len(x[-x.isnull()].unique()) == 1 , axis = 0).all()
 
 def majority_value(bin_targets):
-    print("Majority value computing...")
-    return stats.mode(bin_targets.values)[0][0][0]
+    res = stats.mode(bin_targets[0].values)[0][0][0]
+    print(res)
+    return res
 
 def choose_best_decision_attr(examples, attributes, bin_targets):
-    print("Best decision attribute...")
-    print(attributes)
+#    print("Best decision attribute...")
+#    print(attributes)
     max_gain = 0
-
     index_gain = 0
     # p and n -> training data has p positive and n negative examples
     p = len(bin_targets.loc[bin_targets[0] == 1].index)
     n = len(bin_targets.loc[bin_targets[0] == 0].index)
+
+#    print("Positives : ", p)
+#    print("Negatives : ", n)
 
     for attribute in attributes:
 
@@ -101,6 +106,10 @@ def choose_best_decision_attr(examples, attributes, bin_targets):
 
         index_pos = examples_pos.index.values
         index_neg = examples_neg.index.values
+
+#        print(index_pos)
+#        print("=======")
+#        print(index_neg)
 
         p0 = 0 
         n0 = 0
@@ -119,12 +128,16 @@ def choose_best_decision_attr(examples, attributes, bin_targets):
             else:
                 n0 = n0 + 1    
 
+#        print(p0)
+#        print(n0)
+#        print(p1)
+#        print(n1)
+
         curr_gain = gain(p, n, p0, n0, p1, n1)
         if curr_gain > max_gain:
             index_gain = attribute
             max_gain = curr_gain
-    print("Max gain found ", max_gain)
-
+#    print("Max gain found ", max_gain)
     return index_gain
 
 
@@ -135,6 +148,9 @@ def gain(p, n, p0, n0, p1, n1):
 # Information Gain I
 def get_info_gain(p, n):
     # I(p, n) = − p+n log 2 ( p+n ) − p+n log 2 ( p+n ) and
+    if p + n == 0:
+        return 0
+
     term = float(p / (p + n))
 #    return -math.log(term, 2) * term - (math.log(1 - term, 2) * (1 - term))
     return stats.entropy([term, 1 - term], base=2)
@@ -144,18 +160,23 @@ def get_remainder(p, n, p0, n0, p1, n1):
     # Remainder(attribute) = (p0 + n0)/(p + n) * I(p0, n0) + (p1 + n1)/(p + n) * I(p1, n1)
     return (p0 + n0)/(p + n) * get_info_gain(p0, n0) + (p1 + n1)/(p + n) * get_info_gain(p1, n1)
 
+def test(df):
+    print(df)
+    print("====")
+    df = df.loc[df[1] == 0]
+    print(df)
+    print("====")
+    print(df.index.values)
+
 def main():
 
     # Testing
     labels, data = load_raw_data()
-    df = to_dataframe(labels, data)
-    
-    root = decision_tree(df.ix[:,1:], set(au_indices), filter_for_emotion(df.ix[:,0], emotion['surprise']))# , filter_for_emotion(df, emotion['surprise']))
+    df_labels, df_data = to_dataframe(labels, data)
 
+    binary_targets = filter_for_emotion(df_labels, emotion['surprise'])
+
+    root = decision_tree(df_data, set(au_indices), binary_targets)
     print(root)
-
-#    p = filter_for_emotion(df, emotion['surprise'])
-#    print(p.ix[:,1:])
-
 
 if __name__ == "__main__": main()
