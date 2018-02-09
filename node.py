@@ -1,6 +1,7 @@
 # Tree Structure - TreeNode in Decision Tree
 class TreeNode:
 
+
     def __init__(self, node_label, leaf=False):
         self.op = node_label
         self.kids = [None] * 2
@@ -39,21 +40,21 @@ class TreeNode:
     def traverse(root):
         current_level = [root]
         while current_level:
-            print(' '.join(str(node) for node in current_level))
+            print(','.join(str(node) for node in current_level), end=',')
             next_level = list()
             for n in current_level:
 
-                if n.op == "A":
+                if n.op == "'#'":
                     continue;
 
                 if n.kids[0]:
                     next_level.append(n.kids[0])
                 else:
-                    next_level.append(TreeNode("A"))
+                    next_level.append(TreeNode("'#'"))
                 if n.kids[1]:
                     next_level.append(n.kids[1])
                 else:
-                    next_level.append(TreeNode("A"))
+                    next_level.append(TreeNode("'#'"))
             current_level = next_level
 
     # TREE STRUCTURE - Utility functions
