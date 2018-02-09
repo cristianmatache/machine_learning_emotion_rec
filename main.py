@@ -177,6 +177,10 @@ def main():
     binary_targets = filter_for_emotion(df_labels, emotion['surprise'])
 
     root = decision_tree(df_data, set(au_indices), binary_targets)
-    print(root)
+#    print(root)
+
+#    TreeNode.traverse(root)
+
+    print(root.preorder_traversal())
 
 if __name__ == "__main__": main()
