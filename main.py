@@ -56,10 +56,10 @@ def decision_tree(examples, attributes, bin_targets):
     all_same = check_all_same(bin_targets)
 
     if all_same:
-        return TreeNode(bin_targets.iloc[0].iloc[0], True)
+        return TreeNode(None, True, bin_targets.iloc[0].iloc[0])
     elif not attributes:
         # Majority Value
-        return TreeNode(majority_value(bin_targets), True)
+        return TreeNode(None, True, majority_value(bin_targets))
     else:
         best_attribute = choose_best_decision_attr(examples, attributes, bin_targets)
         tree = TreeNode(best_attribute)
@@ -70,7 +70,7 @@ def decision_tree(examples, attributes, bin_targets):
 
             if examples_i.empty:
                 # Majority Value
-                return TreeNode(majority_value(bin_targets), True)
+                return TreeNode(None, True, majority_value(bin_targets))
             else:
                 attr = set(attributes)
                 attr.remove(best_attribute)
@@ -159,8 +159,10 @@ def main():
         root = decision_tree(df_data, set(AU_INDICES), binary_targets)
         print("Decision tree built")
 
-        for i in AU_INDICES:
-            TreeNode.dfs(root, df_data.loc[i], binary_targets.loc[i].at[0])
+        TreeNode.traverse(root)
+
+ #       for i in AU_INDICES:
+#            TreeNode.dfs(root, df_data.loc[i], binary_targets.loc[i].at[0])
         print()
         print("Done with emotion", e)
         print()

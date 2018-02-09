@@ -1,16 +1,22 @@
 # Tree Structure - TreeNode in Decision Tree
 class TreeNode:
-    def __init__(self, node_label, leaf=False):
+    def __init__(self, node_label, leaf=False, value=None):
         self.op = node_label
         self.kids = [None] * 2
         self.leaf = leaf
+        self.value = value 
 
     def __str__(self):
+        if self.leaf:
+            return str(self.value)
         return str(self.op)
 
     def preorder_traversal(self):
         if self.op == None:
-            return "null"
+            if self.leaf:
+                return self.value
+            else:
+                return "null"
         else:
             left = ""
 
@@ -34,7 +40,7 @@ class TreeNode:
     @staticmethod
     def dfs(root, attributes_lists, expectation):
         if root.leaf:
-            is_correct = root.op == expectation
+            is_correct = root.value == expectation
             print(is_correct, end=" ")
         else:
             index = root.op
@@ -63,17 +69,3 @@ class TreeNode:
                 else:
                     next_level.append(TreeNode("'#'"))
             current_level = next_level
-
-    # Utility functions
-    def flatten_tree(self, root):
-        print(str(root.op), end='')
-        if root.kids:
-            for kid in root.kids:
-                if kid:
-                    print('[', end='')
-                    self.flatten_tree(kid)
-                    print(']', end='')
-
-    def print_tree(self, root):
-        self.flatten_tree(root)
-        print()
