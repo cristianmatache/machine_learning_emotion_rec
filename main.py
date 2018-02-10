@@ -17,15 +17,15 @@ def load_raw_data():
     mat_contents = sio.loadmat(CLEAN_DATA_PATH)
     data = mat_contents['x']   # entries/lines which contain the activated AU/muscles
     labels = mat_contents['y'] # the labels from 1-6 of emotions for each entry in data
-    print("Raw data loaded...")    
+    print("Raw data loaded...")
     return labels, data
 
 # Converting data to DataFrame format
 def to_dataframe(labels, data):
-    print("Converting to data frame started...")    
+    print("Converting to data frame started...")
     df_labels = pd.DataFrame(labels)
     df_data = pd.DataFrame(data, columns=AU_INDICES)
-    print("Converting to data frame done...")    
+    print("Converting to data frame done...")
     return df_labels, df_data
 
 # Filter a vector in df format to be 1 where we have
@@ -152,7 +152,11 @@ def main():
     N = df_labels.shape[0]   # Number of examples
     segments = preprocess_for_cross_validation(N)
     print("----------------------------------- LOADING COMPLETED ----------------------------------- \n")
+
+    error_list = {'anger': 1, 'disgust': 2, 'fear': 3, 'happiness': 4, 'sadness': 5, 'surprise': 6}
     for e in emotion.keys():
+        total_error_for_emotion = 0
+        error_list[1] = 2
         print("/\ Decision tree building for emotion: ", e)
         binary_targets = filter_for_emotion(df_labels, emotion[e])
         for test_seg in segments:
@@ -163,10 +167,21 @@ def main():
         #
         # TreeNode.traverse(root)
         #
+            count = 0
+            # Counts number of incorrectly predicted tests
             for i in test_df_data.index.values:
-               TreeNode.dfs(root, test_df_data.loc[i], test_df_targets.loc[i].at[0])
+               count +=  1 - TreeNode.dfs(root, test_df_data.loc[i], test_df_targets.loc[i].at[0])
 
-            print()
+            error = count / len(test_df_targets)
+            total_error_for_emotion += error
+
+        total_error_for_emotion /= 10
+        error_list[e] = total_error_for_emotion
+
+
+
+
+        print()
         # print()
         # print("Done with emotion: ", e)
         # print()

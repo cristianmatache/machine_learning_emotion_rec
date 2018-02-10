@@ -4,7 +4,7 @@ class TreeNode:
         self.op = node_label
         self.kids = [None] * 2
         self.leaf = leaf
-        self.value = value 
+        self.value = value
 
     def __str__(self):
         if self.leaf:
@@ -42,12 +42,13 @@ class TreeNode:
         if root.leaf:
             is_correct = root.value == expectation
             print("1" if is_correct else "0", end="")
+            return 1 if is_correct else 0
         else:
             index = root.op
             if attributes_lists.ix[index] == 0:
-                root = TreeNode.dfs(root.kids[0], attributes_lists, expectation)
+                return TreeNode.dfs(root.kids[0], attributes_lists, expectation)
             else:
-                root = TreeNode.dfs(root.kids[1], attributes_lists, expectation)
+                return TreeNode.dfs(root.kids[1], attributes_lists, expectation)
 
     @staticmethod
     def traverse(root):
