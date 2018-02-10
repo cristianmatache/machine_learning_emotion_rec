@@ -18,6 +18,7 @@ def cross_validation_error(df_labels, N, df_data, segments):
         for test_seg in segments:
             test_df_data, test_df_targets, train_df_data, train_df_targets = util.get_train_test_segs(test_seg, N, slice_segments)
             root = dtree.decision_tree(train_df_data, set(AU_INDICES), train_df_targets)
+            TreeNode.plot_tree(root)
             # root = decision_tree(df_data, set(AU_INDICES), binary_targets)
             print("/\ Decision tree built")
             # TreeNode.traverse(root)
