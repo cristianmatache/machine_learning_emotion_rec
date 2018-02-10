@@ -38,17 +38,28 @@ class TreeNode:
         return self.kids[index]
 
     @staticmethod
-    def dfs(root, attributes_lists, expectation):
+    def dfs(root, example, expectation):
         if root.leaf:
             is_correct = root.value == expectation
             print("1" if is_correct else "0", end="")
             return 1 if is_correct else 0
         else:
             index = root.op
-            if attributes_lists.ix[index] == 0:
-                return TreeNode.dfs(root.kids[0], attributes_lists, expectation)
+            if example.ix[index] == 0:
+                return TreeNode.dfs(root.kids[0], example, expectation)
             else:
-                return TreeNode.dfs(root.kids[1], attributes_lists, expectation)
+                return TreeNode.dfs(root.kids[1], example, expectation)
+
+    @staticmethod
+    def dfs(root, example):
+        if root.leaf:
+            return root.value
+        else:
+            index = root.op
+            if example.ix[index] == 0:
+                return TreeNode.dfs(root.kids[0], example)
+            else:
+                return TreeNode.dfs(root.kids[1], example)
 
     @staticmethod
     def traverse(root):
