@@ -1,8 +1,6 @@
 import pandas as pd
-import scipy.stats as stats
-import scipy.io as sio
-import numpy as np
 import random as rand
+import cross_validation
 from node import TreeNode
 import utilities as util
 import decision_tree_maker as dtree
@@ -59,12 +57,8 @@ def compute_confusion_matrix(segments, df_labels, df_data, N):
     res = pd.DataFrame(0, index=[1, 2, 3, 4, 5, 6], columns=[1, 2, 3, 4, 5, 6])
 
     for test_seg in segments:
-        print("Folding number...", test_seg[0])
-
         T = []
         test_df_data, test_df_targets, train_df_data, train_df_targets = util.get_train_test_segs(test_seg, N, slice_segments)
-        print(test_df_data)
-        print(train_df_data)
         for e in ["anger", "disgust", "fear", "happiness", "sadness", "surprise"]:
             print("Building decision tree for emotion", e)
             root = dtree.decision_tree(train_df_data, set(AU_INDICES), util.filter_for_emotion(train_df_targets, emotion[e]))
@@ -93,7 +87,7 @@ def main():
     N = df_labels.shape[0]
     segments = util.preprocess_for_cross_validation(N)
     print("----------------------------------- LOADING COMPLETED ----------------------------------- \n")
-#    cross_validation_error(df_labels, N, df_data, segments)
+    cross_validation.cross_validation_error(df_labels, N, df_data, segments)
 
     print(compute_confusion_matrix(segments, df_labels, df_data, N))
 

@@ -49,7 +49,7 @@ class TreeNode:
         return self.kids[index]
 
     @staticmethod
-    def dfs(root, example, expectation):
+    def dfs2(root, example, expectation):
         if root.leaf:
             is_correct = root.value == expectation
             print("1" if is_correct else "0", end="")
@@ -57,9 +57,9 @@ class TreeNode:
         else:
             index = root.op
             if example.ix[index] == 0:
-                return TreeNode.dfs(root.kids[0], example, expectation)
+                return TreeNode.dfs2(root.kids[0], example, expectation)
             else:
-                return TreeNode.dfs(root.kids[1], example, expectation)
+                return TreeNode.dfs2(root.kids[1], example, expectation)
 
     @staticmethod
     def dfs(root, example):
@@ -75,11 +75,10 @@ class TreeNode:
     @staticmethod
     def _dfs_pure(root):
         global _edges
-        for kid in root.kids:
-            if not root.leaf:
-                for kid in root.kids:
-                    _edges.append((root.index, kid.index))
-                    TreeNode._dfs_pure(kid)
+        if not root.leaf:
+            for kid in root.kids:
+                _edges.append((root.index, kid.index))
+                TreeNode._dfs_pure(kid)
 
     @staticmethod
     def plot_tree(root):
