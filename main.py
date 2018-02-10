@@ -1,10 +1,8 @@
-import sys
 import pandas as pd
 import scipy.stats as stats
 import scipy.io as sio
 import numpy as np
 from node import TreeNode
-# TODO: extract each thing in capitals in different files
 
 # Macros
 CLEAN_DATA_PATH = 'Data/cleandata_students.mat'
@@ -154,7 +152,8 @@ def cross_validation_error(df_labels, N, df_data, segments):
         for test_seg in segments:
             test_df_data, test_df_targets, train_df_data, train_df_targets = get_train_test_segs(test_seg, N, slice_segments)
             root = decision_tree(train_df_data, set(AU_INDICES), train_df_targets)
-            # root = decision_tree(df_data, set(AU_INDICES), binary_targets)
+            TreeNode.plot_tree(root)
+            root = decision_tree(df_data, set(AU_INDICES), binary_targets)
             print("/\ Decision tree built")
             # TreeNode.traverse(root)
             count = 0

@@ -1,10 +1,21 @@
+import plot
+
 # Tree Structure - TreeNode in Decision Tree
+
+_node_index = 0
+_edges = []
+_file_index = 0
+
 class TreeNode:
+
     def __init__(self, node_label, leaf=False, value=None):
         self.op = node_label
         self.kids = [None] * 2
         self.leaf = leaf
         self.value = value
+        global _node_index
+        self.index = _node_index
+        _node_index += 1
 
     def __str__(self):
         if self.leaf:
@@ -62,6 +73,25 @@ class TreeNode:
                 return TreeNode.dfs(root.kids[1], example)
 
     @staticmethod
+    def _dfs_pure(root):
+        global _edges
+        for kid in root.kids:
+            if not root.leaf:
+                for kid in root.kids:
+                    _edges.append((root.index, kid.index))
+                    TreeNode._dfs_pure(kid)
+
+    @staticmethod
+    def plot_tree(root):
+        global _file_index,_edges, _node_index
+        _edges, _node_index = [], 0
+        TreeNode._dfs_pure(root)
+        _file_index += 1
+        print([(x, y) for (x, y) in _edges if x == 0])
+        plot.visualize_tree(_edges, _file_index)
+
+
+    @staticmethod
     def traverse(root):
         current_level = [root]
         while current_level:
@@ -70,7 +100,7 @@ class TreeNode:
             for n in current_level:
 
                 if n.op == "'#'":
-                    continue;
+                    continue
 
                 if n.kids[0]:
                     next_level.append(n.kids[0])

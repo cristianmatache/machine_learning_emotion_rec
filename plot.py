@@ -35,9 +35,10 @@ def hierarchy_pos(G, root, width=1., vert_gap = 0.2, vert_loc = 0, xcenter = 0.5
 
     return h_recur(G, root, width=1., vert_gap = 0.2, vert_loc = 0, xcenter = 0.5)
 
-def visualize_tree(tree_edges, root_node = 1):
-    G=nx.Graph()
+def visualize_tree(tree_edges, file_index, root_node = 0):
+    G = nx.Graph()
     G.add_edges_from(tree_edges)
     pos = hierarchy_pos(G,root_node)
     nx.draw(G, pos=pos, with_labels=True)
-    plt.savefig('hierarchy.png')
+    plt.savefig('hierarchy'+str(file_index)+'.png')
+    plt.clf()
