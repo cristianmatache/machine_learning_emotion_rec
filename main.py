@@ -7,7 +7,7 @@ from node import TreeNode
 # TODO: extract each thing in capitals in different files
 
 # Macros
-CLEAN_DATA_PATH = 'Data/noisydata_students.mat'
+CLEAN_DATA_PATH = 'Data/cleandata_students.mat'
 AU_INDICES = list(range(1, 46))
 emotion = {'anger': 1, 'disgust': 2, 'fear': 3, 'happiness': 4, 'sadness': 5, 'surprise': 6}
 
@@ -116,23 +116,57 @@ def get_info_gain(p, n):
 def get_remainder(p, n, p0, n0, p1, n1):
     return ((p0 + n0)/(p + n)) * get_info_gain(p0, n0) + ((p1 + n1)/(p + n)) * get_info_gain(p1, n1) if p+n != 0 else 0
 
+# Computes list [(start, end)] of the limits of K segments used in cross validation in a df of length N
+def preprocess_for_cross_validation(N, K = 10):
+    seg_size = int(N/K)     # Size of a block of examples/targets
+    segments = [(i - seg_size, i - 1) for i in range(seg_size, N-+1, seg_size)]
+    segments[-1] = (segments[-1][0], N-1)
+    return segments
+
+# Slices the initial dataframes (df_data, binary targets) into dataframes for training and for testing
+def get_train_test_segs(test_seg, N, slice_func):
+    (test_start, test_end) = test_seg
+    test_df_data, test_df_targets = slice_func(test_start, test_end)
+
+    if test_start == 0:                                       # test is first segment
+        train_df_data, train_df_targets = slice_func(test_end + 1, N-1)
+    elif test_end == N - 1:                                   # test is last segment
+        train_df_data, train_df_targets = slice_func(0, test_start-1)
+    else:                                                     # test is middle segment
+        data_p1,targets_p1 = slice_func(0, test_start-1)
+        data_p2, targets_p2 = slice_func(test_end+1, N-1)
+
+        train_df_data = pd.concat([data_p1, data_p2], axis=0)
+        train_df_targets = pd.concat([targets_p1, targets_p2], axis=0)
+
+    return test_df_data, test_df_targets, train_df_data, train_df_targets
+
 # Testing
 def main():
+    def slice(from_index, to_index):
+        return df_data[from_index : to_index + 1], binary_targets[from_index : to_index + 1] # to change to binary targets !!!!!
+
     labels, data = load_raw_data()
     df_labels, df_data = to_dataframe(labels, data)
+
+    N = df_labels.shape[0]   # Number of examples
+    segments = preprocess_for_cross_validation(N)
     print("----------------------------------- LOADING COMPLETED ----------------------------------- \n")
     for e in emotion.keys():
         print("/\ Decision tree building for emotion: ", e)
         binary_targets = filter_for_emotion(df_labels, emotion[e])
-        root = decision_tree(df_data, set(AU_INDICES), binary_targets)
-        print("/\ Decision tree built")
+        for test_seg in segments:
+            test_df_data, test_df_targets, train_df_data, train_df_targets = get_train_test_segs(test_seg, N, slice)
 
-        TreeNode.traverse(root)
-
-        for i in AU_INDICES:
-           TreeNode.dfs(root, df_data.loc[i], binary_targets.loc[i].at[0])
-        print()
-        print("Done with emotion: ", e)
-        print()
+        # root = decision_tree(df_data, set(AU_INDICES), binary_targets)
+        # print("/\ Decision tree built")
+        #
+        # TreeNode.traverse(root)
+        #
+        # for i in AU_INDICES:
+        #    TreeNode.dfs(root, df_data.loc[i], binary_targets.loc[i].at[0])
+        # print()
+        # print("Done with emotion: ", e)
+        # print()
 
 if __name__ == "__main__": main()
