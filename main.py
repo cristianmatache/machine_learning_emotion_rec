@@ -141,49 +141,48 @@ def get_train_test_segs(test_seg, N, slice_func):
 
     return test_df_data, test_df_targets, train_df_data, train_df_targets
 
-# Testing
-def main():
-    def slice(from_index, to_index):
+def cross_validation_error(df_labels, N, df_data, segments):
+    def slice_segments(from_index, to_index):
         return df_data[from_index : to_index + 1], binary_targets[from_index : to_index + 1] # to change to binary targets !!!!!
-
-    labels, data = load_raw_data()
-    df_labels, df_data = to_dataframe(labels, data)
-
-    N = df_labels.shape[0]   # Number of examples
-    segments = preprocess_for_cross_validation(N)
-    print("----------------------------------- LOADING COMPLETED ----------------------------------- \n")
 
     error_list = {'anger': 1, 'disgust': 2, 'fear': 3, 'happiness': 4, 'sadness': 5, 'surprise': 6}
     for e in emotion.keys():
         total_error_for_emotion = 0
         error_list[1] = 2
-        print("/\ Decision tree building for emotion: ", e)
+        print("/\ Decision tree building for emotion:", e)
         binary_targets = filter_for_emotion(df_labels, emotion[e])
         for test_seg in segments:
-            test_df_data, test_df_targets, train_df_data, train_df_targets = get_train_test_segs(test_seg, N, slice)
+            test_df_data, test_df_targets, train_df_data, train_df_targets = get_train_test_segs(test_seg, N, slice_segments)
             root = decision_tree(train_df_data, set(AU_INDICES), train_df_targets)
-        # root = decision_tree(df_data, set(AU_INDICES), binary_targets)
+            # root = decision_tree(df_data, set(AU_INDICES), binary_targets)
             print("/\ Decision tree built")
-        #
-        # TreeNode.traverse(root)
-        #
+            # TreeNode.traverse(root)
             count = 0
             # Counts number of incorrectly predicted tests
             for i in test_df_data.index.values:
-               count +=  1 - TreeNode.dfs(root, test_df_data.loc[i], test_df_targets.loc[i].at[0])
+               count += 1 - TreeNode.dfs(root, test_df_data.loc[i], test_df_targets.loc[i].at[0])
 
             error = count / len(test_df_targets)
             total_error_for_emotion += error
+            print()
 
         total_error_for_emotion /= 10
         error_list[e] = total_error_for_emotion
-
-
-
-
         print()
-        # print()
-        # print("Done with emotion: ", e)
-        # print()
+        print("Total error:", total_error_for_emotion)
+        print()
+
+# Testing
+def main():
+
+    labels, data = load_raw_data()
+    df_labels, df_data = to_dataframe(labels, data)
+
+    # Number of examples
+    N = df_labels.shape[0]   
+    segments = preprocess_for_cross_validation(N)
+    print("----------------------------------- LOADING COMPLETED ----------------------------------- \n")
+    cross_validation_error(df_labels, N, df_data, segments)
+
 
 if __name__ == "__main__": main()
