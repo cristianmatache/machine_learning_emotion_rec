@@ -157,14 +157,16 @@ def main():
         binary_targets = filter_for_emotion(df_labels, emotion[e])
         for test_seg in segments:
             test_df_data, test_df_targets, train_df_data, train_df_targets = get_train_test_segs(test_seg, N, slice)
-
+            root = decision_tree(train_df_data, set(AU_INDICES), train_df_targets)
         # root = decision_tree(df_data, set(AU_INDICES), binary_targets)
-        # print("/\ Decision tree built")
+            print("/\ Decision tree built")
         #
         # TreeNode.traverse(root)
         #
-        # for i in AU_INDICES:
-        #    TreeNode.dfs(root, df_data.loc[i], binary_targets.loc[i].at[0])
+            for i in test_df_data.index.values:
+               TreeNode.dfs(root, test_df_data.loc[i], test_df_targets.loc[i].at[0])
+
+            print()
         # print()
         # print("Done with emotion: ", e)
         # print()

@@ -41,7 +41,7 @@ class TreeNode:
     def dfs(root, attributes_lists, expectation):
         if root.leaf:
             is_correct = root.value == expectation
-            print(is_correct, end=" ")
+            print("1" if is_correct else "0", end="")
         else:
             index = root.op
             if attributes_lists.ix[index] == 0:
