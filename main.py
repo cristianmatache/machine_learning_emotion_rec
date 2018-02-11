@@ -7,6 +7,7 @@ from node import TreeNode
 import utilities as util
 import decision_tree_maker as dtree
 import decision_forest as forest
+import measures
 
 '''
     Macros
@@ -34,7 +35,7 @@ def compare_pred_expect(predictions, expectations):
     for index in predictions.index.values:
         e = expectations.iloc[index] - 1
         p = predictions.iloc[index] - 1
-        confusion_matrix.loc[e, p] += 1
+        confusion_matrix.loc[p, e] += 1
 
     return confusion_matrix
 
@@ -156,6 +157,10 @@ def compute_confusion_matrix(df_labels, df_data, N):
         print()
 
     res = res.div(res.sum(axis=1), axis=0)
+    for e in EMOTIONS_LIST:
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print(measures.compute_binary_confusion_matrix(res, e))
+
     return res
 
 # Testing
