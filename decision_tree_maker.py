@@ -6,6 +6,11 @@ import numpy as np
 import random as rand
 from node import TreeNode
 import utilities as util
+# import queue
+
+def decision_tree_queue(examples, attributes, bin_targets, queue):
+    root = decision_tree(examples, attributes, bin_targets)
+    queue.put(root)
 
 '''
     Decision tree learning
