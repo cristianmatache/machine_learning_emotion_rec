@@ -81,13 +81,13 @@ class TreeNode:
                 TreeNode._dfs_pure(kid)
 
     @staticmethod
-    def plot_tree(root):
+    def plot_tree(root, emotion = "default_emotion"):
         global _file_index,_edges, _node_index
         _edges, _node_index = [], 0
         TreeNode._dfs_pure(root)
         _file_index += 1
         print([(x, y) for (x, y) in _edges if x == 0])
-        plot.visualize_tree(_edges, _file_index)
+        plot.visualize_tree(_edges, _file_index, emotion=emotion)
 
 
     @staticmethod

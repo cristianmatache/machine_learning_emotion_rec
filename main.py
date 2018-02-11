@@ -86,7 +86,7 @@ def main():
     N = df_labels.shape[0]
     segments = util.preprocess_for_cross_validation(N)
     print("----------------------------------- LOADING COMPLETED ----------------------------------- \n")
-    #cross_validation.cross_validation_error(df_labels, N, df_data, segments)
+    cross_validation.cross_validation_error(df_labels, N, df_data, segments)
 
 #    print(compute_confusion_matrix(segments, df_labels, df_data, N))
 
