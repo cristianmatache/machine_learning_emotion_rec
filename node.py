@@ -1,4 +1,5 @@
 import plot
+import queue
 
 # Tree Structure - TreeNode in Decision Tree
 
@@ -63,15 +64,16 @@ class TreeNode:
                 return TreeNode.dfs2(root.kids[1], example, expectation)
 
     @staticmethod
-    def dfs(root, example):
+    def dfs(root, example, queue):
         if root.leaf:
+            queue.put(root.value)
             return root.value
         else:
             index = root.op
             if example.ix[index] == 0:
-                return TreeNode.dfs(root.kids[0], example)
+                return TreeNode.dfs(root.kids[0], example, queue)
             else:
-                return TreeNode.dfs(root.kids[1], example)
+                return TreeNode.dfs(root.kids[1], example, queue)
 
     @staticmethod
     def _dfs_pure(root):

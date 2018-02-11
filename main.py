@@ -5,6 +5,8 @@ import numpy as np
 from node import TreeNode
 import utilities as util
 import decision_tree_maker as dtree
+import threading as thd
+import queue
 
 '''
     Macros
@@ -23,10 +25,9 @@ EMOTIONS_LIST = ["anger", "disgust", "fear", "happiness", "sadness", "surprise"]
     Computes confusion matrix by incrementing conf_matrix[expectation[i], prediction[i]]
 '''
 def compare_pred_expect(predictions, expectations):
+    
     confusion_matrix = pd.DataFrame(0, index=EMOTIONS_INDICES, columns=EMOTIONS_INDICES)
     predictions, expectations = predictions.reset_index(drop=True), expectations.reset_index(drop=True)
-
-    #print(predictions.index.values == expectations.index.values)
     
     for index in predictions.index.values:
         e = expectations.iloc[index] - 1
@@ -60,9 +61,30 @@ def test_trees(T, x2):
     for i in x2.index.values:
         example = x2.loc[i]
         tree_predictions = []
+
+        thread_list = []
+        queue_list = [queue.Queue()] * 6
+        count = 0
+
         for tree in T:
-            prediction = TreeNode.dfs(tree, example)
-            tree_predictions.append(prediction)
+
+            t1 = thd.Thread(target=TreeNode.dfs, args=(tree, example, queue_list[count]))
+
+            count += 1
+
+            t1.start()
+            thread_list.append(t1)
+
+            # prediction = TreeNode.dfs(tree, example)
+            # tree_predictions.append(prediction)
+
+        for t in thread_list:
+            t.join()
+
+        for q in queue_list:
+            tree_predictions.append(q.get())
+
+
         prediction_choice = choose_prediction(tree_predictions)
         predictions.append(prediction_choice + 1)
 
@@ -90,17 +112,64 @@ def compute_confusion_matrix(df_labels, df_data, N):
         T = []
         test_df_data, test_df_targets, train_df_data, train_df_targets = util.get_train_test_segs(test_seg, N, slice_segments)
 
+        # CORECT
+        '''
+            print("Test df data")
+            print(test_df_data)
+            print("--------------")
+            print("Test df targets")
+            print(test_df_targets)
+            print("==============")
+            print("Train df data")
+            print(train_df_data)
+            print("--------------")
+            print("Train df targets")
+            print(train_df_targets)
+            print("==============")
+        '''
+
+        # thread_list = [None] * 6
+
+        # queue_list = []
+
+        # count = 0
+
         for e in EMOTIONS_LIST:
+
             print("Building decision tree for emotion: ", e)
             train_binary_targets = util.filter_for_emotion(train_df_targets, EMOTION_DICT[e])
+
+            # q = queue.Queue()
+            # queue_list.append(q)
+            # t1 = thd.Thread(target=dtree.decision_tree_queue, args=(train_df_data, set(AU_INDICES), train_binary_targets, q))
+
+            # t1.start()
+            # thread_list[count] = t1
+            # count += 1
+
             root = dtree.decision_tree(train_df_data, set(AU_INDICES), train_binary_targets)
             print("Decision tree built. Now appending...")
             T.append(root)
+
+        # print("Len thread list:", len(thread_list))
+
+        # for t in thread_list:
+        #     t.join()
+
+        # print(queue_list)
+
+        # for q in queue_list:
+        #     print("Queue", q.get().op)
+        #     print("Queue size", q.qsize())
+        #     T.append(q.get())
 
         print("All decision trees built")
 
         predictions = test_trees(T, test_df_data)
         confusion_matrix = compare_pred_expect(predictions, test_df_targets)
+
+        print(confusion_matrix)
+
         res = res.add(confusion_matrix)
         print("Folding ended")
         print()
