@@ -11,6 +11,12 @@ emotion = {'anger': 1, 'disgust': 2, 'fear': 3, 'happiness': 4, 'sadness': 5, 's
 
 
 def compare_pred_expect(predictions, expectations):
+    predictions = predictions.reset_index(drop=True)
+    expectations = expectations.reset_index(drop=True)
+    # print("Pred")
+    # print(predictions)
+    # print("Exp")
+    # print(expectations)
 
     confusion_matrix = pd.DataFrame(0, index=[1, 2, 3, 4, 5, 6], columns=[1, 2, 3, 4, 5, 6])
     for index in predictions.index.values:
@@ -59,20 +65,25 @@ def compute_confusion_matrix(segments, df_labels, df_data, N):
         T = []
         test_df_data, test_df_targets, train_df_data, train_df_targets = util.get_train_test_segs(test_seg, N, slice_segments)
 
-        for e in ["happiness"]: #["anger", "disgust", "fear", "happiness", "sadness", "surprise"]:
+
+        for e in ["anger"]: # ["anger", "disgust", "fear", "happiness", "sadness", "surprise"]:
             print("Building decision tree for emotion: ", e)
             train_binary_targets = util.filter_for_emotion(train_df_targets, emotion[e])
+            print("TRAIN BINARY TARGETS")
+            print(train_binary_targets)
             root = dtree.decision_tree(train_df_data, set(AU_INDICES), train_binary_targets)
             print("Decision tree built.")
             T.append(root)
 
         predictions = test_trees(T, test_df_data, test_df_targets)
         confusion_matrix = compare_pred_expect(predictions, test_df_targets)
-        print("Confusion matrix", confusion_matrix)
+        print("Confusion matrix")
+        print(confusion_matrix)
 
-        print("Confusion matrix", confusion_matrix.div(confusion_matrix.sum(axis=1), axis=0))
-        res.add(confusion_matrix)
+        print("Confusion matrix")
+        print(confusion_matrix.div(confusion_matrix.sum(axis=1), axis=0))
 
+        res = res.add(confusion_matrix)
 
     return res.div(res.sum(axis=1), axis=0)
 
