@@ -1,4 +1,4 @@
-import sys
+import pandas as pd
 import scipy.stats as stats
 from node import TreeNode
 
@@ -51,59 +51,19 @@ def majority_value(bin_targets):
     res = stats.mode(bin_targets[0].values)[0][0]
     return res
 
-# def choose_best_decision_attr(examples, attributes, bin_targets):
-#     def f(eg_val, attr_val, attribute):
-#         return pd_joint[(pd_joint[0] == eg_val) & (pd_joint[attribute] == attr_val)].shape[0]
-
-#     pd_joint = pd.concat([bin_targets, examples], axis=1)
-
-#     def get_gain(attr):
-#         p1, n1, p0, n0 = f(1,1,attr), f(0,1,attr), f(1,0,attr), f(0,0,attr)
-#         return gain(p1+p0, n1+n0, p0, n0, p1, n1)
-
-#     all_gains = [(get_gain(a), a) for a in attributes]
-#     (max_gain, index_gain) = max(all_gains, key=lambda x: x[0]) if all_gains else (-1, -1)
-#     return index_gain
-
 def choose_best_decision_attr(examples, attributes, bin_targets):
-    max_gain = -sys.maxsize - 1
-    index_gain = -1
-    # p and n: training data has p positive and n negative examples
-    p = len(bin_targets.loc[bin_targets[0] == 1].index)
-    n = len(bin_targets.loc[bin_targets[0] == 0].index)
+    def f(eg_val, attr_val, attribute):
+        return pd_joint[(pd_joint[0] == eg_val) & (pd_joint[attribute] == attr_val)].shape[0]
 
-    for attribute in attributes:
-        examples_pos = examples.loc[examples[attribute] == 1]        
-        examples_neg = examples.loc[examples[attribute] == 0]
-        index_pos = examples_pos.index.values
-        index_neg = examples_neg.index.values
+    pd_joint = pd.concat([bin_targets, examples], axis=1)
 
-        p0 = n0 = p1 = n1 = 0
+    def get_gain(attr):
+        p1, n1, p0, n0 = f(1,1,attr), f(0,1,attr), f(1,0,attr), f(0,0,attr)
+        return gain(p1+p0, n1+n0, p0, n0, p1, n1)
 
-        for index in index_pos:
-            if bin_targets[0][index] == 1:
-                p1 = p1 + 1
-            else:
-                n1 = n1 + 1    
-
-        for index in index_neg:
-            if bin_targets[0][index] == 1:
-                p0 = p0 + 1
-            else:
-                n0 = n0 + 1    
-
-        curr_gain = gain(p, n, p0, n0, p1, n1)
-        if curr_gain > max_gain:
-            index_gain = attribute
-            max_gain = curr_gain
-
-    if max_gain == -sys.maxsize - 1:
-        raise ValueError('Index gain is original value...')        
-
+    all_gains = [(get_gain(a), a) for a in attributes]
+    (max_gain, index_gain) = max(all_gains, key=lambda x: x[0]) if all_gains else (-1, -1)
     return index_gain
-
-
-
 
 # Gain(attribute) = I(p, n) – Remainder(attribute)
 def gain(p, n, p0, n0, p1, n1):
@@ -122,3 +82,46 @@ def get_info_gain(p, n):
 # Remainder(attribute) = (p0 + n0)/(p + n) * I(p0, n0) + (p1 + n1)/(p + n) * I(p1, n1)
 def get_remainder(p, n, p0, n0, p1, n1):
     return ((p0 + n0)/(p + n)) * get_info_gain(p0, n0) + ((p1 + n1)/(p + n)) * get_info_gain(p1, n1) if p+n != 0 else 0
+
+
+
+
+
+
+
+# def choose_best_decision_attr(examples, attributes, bin_targets):
+#     max_gain = -sys.maxsize - 1
+#     index_gain = -1
+#     # p and n: training data has p positive and n negative examples
+#     p = len(bin_targets.loc[bin_targets[0] == 1].index)
+#     n = len(bin_targets.loc[bin_targets[0] == 0].index)
+#
+#     for attribute in attributes:
+#         examples_pos = examples.loc[examples[attribute] == 1]
+#         examples_neg = examples.loc[examples[attribute] == 0]
+#         index_pos = examples_pos.index.values
+#         index_neg = examples_neg.index.values
+#
+#         p0 = n0 = p1 = n1 = 0
+#
+#         for index in index_pos:
+#             if bin_targets[0][index] == 1:
+#                 p1 = p1 + 1
+#             else:
+#                 n1 = n1 + 1
+#
+#         for index in index_neg:
+#             if bin_targets[0][index] == 1:
+#                 p0 = p0 + 1
+#             else:
+#                 n0 = n0 + 1
+#
+#         curr_gain = gain(p, n, p0, n0, p1, n1)
+#         if curr_gain > max_gain:
+#             index_gain = attribute
+#             max_gain = curr_gain
+#
+#     if max_gain == -sys.maxsize - 1:
+#         raise ValueError('Index gain is original value...')
+#
+#     return index_gain

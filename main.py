@@ -1,3 +1,4 @@
+import time
 import pandas as pd
 import random as rand
 import cross_validation
@@ -111,6 +112,7 @@ def compute_confusion_matrix(df_labels, df_data, N):
 
 # Testing
 def main():
+    start = time.time()
 
     labels, data = util.load_raw_data_clean()
     A = np.array(labels)
@@ -126,5 +128,9 @@ def main():
 
     print("----------------------------------- CONFUSION_MATRIX ------------------------------------ \n")
     print(res)
+
+    end = time.time()
+    print("\/\  TOTAL TIME /\/")
+    print(end - start)
 
 if __name__ == "__main__": main()
