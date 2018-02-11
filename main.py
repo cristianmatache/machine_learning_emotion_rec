@@ -62,16 +62,21 @@ def compute_confusion_matrix(segments, df_labels, df_data, N):
         for e in ["happiness"]: #["anger", "disgust", "fear", "happiness", "sadness", "surprise"]:
             print("Building decision tree for emotion: ", e)
             train_binary_targets = util.filter_for_emotion(train_df_targets, emotion[e])
+
+            print("******************** TRAIN TARGETS INAINTE SI DUPA FILTRARE ************")
+            pd_join = pd.concat([train_df_targets, train_binary_targets], axis=1)
+            print(pd_join)
+
             root = dtree.decision_tree(train_df_data, set(AU_INDICES), train_binary_targets)
             print("Decision tree built.")
             T.append(root)
 
         predictions = test_trees(T, test_df_data, test_df_targets)
         confusion_matrix = compare_pred_expect(predictions, test_df_targets)
-        print("Confusion matrix", confusion_matrix)
+        # print("Confusion matrix", confusion_matrix)
 
-        print("Confusion matrix", confusion_matrix.div(confusion_matrix.sum(axis=1), axis=0))
-        res.add(confusion_matrix)
+        # print("Confusion matrix", confusion_matrix.div(confusion_matrix.sum(axis=1), axis=0))
+        res = res.add(confusion_matrix)
 
 
     return res.div(res.sum(axis=1), axis=0)

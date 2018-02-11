@@ -29,9 +29,9 @@ def to_dataframe(labels, data):
 # emotion is an int
 def filter_for_emotion(df, emotion):
     print("Filtering to binary targets for emotion... ")
-    df_filter = df.copy()
-    df_filter.loc[df_filter[0] == emotion, 0] = 1
+    df_filter = df.copy(deep=True)
     df_filter.loc[(df_filter[0] > emotion) | (df_filter[0] < emotion), 0] = 0
+    df_filter.loc[df_filter[0] == emotion, 0] = 1
     print("Filtering done...")
     return df_filter
 
