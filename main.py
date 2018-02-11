@@ -28,7 +28,7 @@ def compare_pred_expect(predictions, expectations):
     confusion_matrix = pd.DataFrame(0, index=EMOTIONS_INDICES, columns=EMOTIONS_INDICES)
     predictions, expectations = predictions.reset_index(drop=True), expectations.reset_index(drop=True)
 
-    #print(predictions.index.values == expectations.index.values)
+    print(predictions.index.values == expectations.index.values)
     
     for index in predictions.index.values:
         e = expectations.iloc[index] - 1
@@ -118,15 +118,13 @@ def main():
     A = np.array(labels)
     labels = [row[0] for row in A]
     df_labels, df_data = util.to_dataframe(labels, data)
-
     # Number of examples
     N = df_labels.shape[0]
-
     print("----------------------------------- LOADING COMPLETED ----------------------------------- \n")
 
     res = compute_confusion_matrix(df_labels, df_data, N)
-
     print("----------------------------------- CONFUSION_MATRIX ------------------------------------ \n")
+
     print(res)
 
     end = time.time()
