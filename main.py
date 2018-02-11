@@ -58,21 +58,21 @@ def compute_confusion_matrix(segments, df_labels, df_data, N):
     for test_seg in segments:
         T = []
         test_df_data, test_df_targets, train_df_data, train_df_targets = util.get_train_test_segs(test_seg, N, slice_segments)
-        for e in ["anger", "disgust", "fear", "happiness", "sadness", "surprise"]:
-            print("Building decision tree for emotion", e)
-            root = dtree.decision_tree(train_df_data, set(AU_INDICES), util.filter_for_emotion(train_df_targets, emotion[e]))
+
+        for e in ["happiness"]: #["anger", "disgust", "fear", "happiness", "sadness", "surprise"]:
+            print("Building decision tree for emotion: ", e)
+            train_binary_targets = util.filter_for_emotion(train_df_targets, emotion[e])
+            root = dtree.decision_tree(train_df_data, set(AU_INDICES), train_binary_targets)
             print("Decision tree built.")
             T.append(root)
+
         predictions = test_trees(T, test_df_data, test_df_targets)
         confusion_matrix = compare_pred_expect(predictions, test_df_targets)
         print("Confusion matrix", confusion_matrix)
 
         print("Confusion matrix", confusion_matrix.div(confusion_matrix.sum(axis=1), axis=0))
-#        return
         res.add(confusion_matrix)
-#        CONFUSION_MATRIX_LIST.append(confusion_matrix)
 
-#    print("Confusion matrices list", CONFUSION_MATRIX_LIST)
 
     return res.div(res.sum(axis=1), axis=0)
 
@@ -86,9 +86,9 @@ def main():
     N = df_labels.shape[0]
     segments = util.preprocess_for_cross_validation(N)
     print("----------------------------------- LOADING COMPLETED ----------------------------------- \n")
-    cross_validation.cross_validation_error(df_labels, N, df_data, segments)
 
-#    print(compute_confusion_matrix(segments, df_labels, df_data, N))
+    # cross_validation.cross_validation_error(df_labels, N, df_data, segments)
+    print(compute_confusion_matrix(segments, df_labels, df_data, N))
 
 #    print(choose_prediction([0, 0, 1, 0, 0, 0]))
 #    bins = util.filter_for_emotion(df_labels, emotion['surprise'])

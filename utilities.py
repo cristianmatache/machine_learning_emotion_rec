@@ -2,6 +2,8 @@ import pandas as pd
 import scipy.io as sio
 import numpy as np
 
+pd.options.mode.chained_assignment = None
+
 CLEAN_DATA_PATH = 'Data/cleandata_students.mat'
 AU_INDICES = list(range(1, 46))
 
@@ -27,10 +29,18 @@ def to_dataframe(labels, data):
 # emotion is an int
 def filter_for_emotion(df, emotion):
     print("Filtering to binary targets for emotion... ")
+    df.loc[df[0]==emotion, 0] = 1
+    df.loc[(df[0] > emotion) | (df[0] < emotion), 0] = 0
+    print("Filtering done...")
+    return df
+
+def filter_for_emotion2(df, emotion):
+    print("Filtering to binary targets for emotion... ")
     emo_df = [] * 45
     emo_df = np.where(df == emotion, 1, 0)
     print("Filtering done...")
     return pd.DataFrame(emo_df)
+
 
 # Computes list [(start, end)] of the limits of K segments used in cross validation in a df of length N
 def preprocess_for_cross_validation(N, K = 10):
