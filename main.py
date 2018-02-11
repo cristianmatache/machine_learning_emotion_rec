@@ -24,6 +24,9 @@ EMOTIONS_LIST = ["anger", "disgust", "fear", "happiness", "sadness", "surprise"]
 '''
 def compare_pred_expect(predictions, expectations):
     confusion_matrix = pd.DataFrame(0, index=EMOTIONS_INDICES, columns=EMOTIONS_INDICES)
+    predictions, expectations = predictions.reset_index(drop=True), expectations.reset_index(drop=True)
+
+    #print(predictions.index.values == expectations.index.values)
     
     for index in predictions.index.values:
         e = expectations.iloc[index] - 1
@@ -86,22 +89,6 @@ def compute_confusion_matrix(df_labels, df_data, N):
         print("Starting fold from", test_seg)
         T = []
         test_df_data, test_df_targets, train_df_data, train_df_targets = util.get_train_test_segs(test_seg, N, slice_segments)
-
-        # CORECT
-        '''
-            print("Test df data")
-            print(test_df_data)
-            print("--------------")
-            print("Test df targets")
-            print(test_df_targets)
-            print("==============")
-            print("Train df data")
-            print(train_df_data)
-            print("--------------")
-            print("Train df targets")
-            print(train_df_targets)
-            print("==============")
-        '''
 
         for e in EMOTIONS_LIST:
             print("Building decision tree for emotion: ", e)
