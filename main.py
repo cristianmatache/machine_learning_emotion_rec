@@ -128,40 +128,32 @@ def compute_confusion_matrix(df_labels, df_data, N):
             print("==============")
         '''
 
-        # thread_list = [None] * 6
+        thread_list = []
 
-        # queue_list = []
-
-        # count = 0
+        queue_list = []
 
         for e in EMOTIONS_LIST:
 
             print("Building decision tree for emotion: ", e)
             train_binary_targets = util.filter_for_emotion(train_df_targets, EMOTION_DICT[e])
 
-            # q = queue.Queue()
-            # queue_list.append(q)
-            # t1 = thd.Thread(target=dtree.decision_tree_queue, args=(train_df_data, set(AU_INDICES), train_binary_targets, q))
+            q = queue.Queue()
+            queue_list.append(q)
 
-            # t1.start()
-            # thread_list[count] = t1
-            # count += 1
+            t1 = thd.Thread(target=dtree.decision_tree_queue, args=(train_df_data, set(AU_INDICES), train_binary_targets, q))
 
-            root = dtree.decision_tree(train_df_data, set(AU_INDICES), train_binary_targets)
-            print("Decision tree built. Now appending...")
-            T.append(root)
+            t1.start()
+            thread_list.append(t1)
 
-        # print("Len thread list:", len(thread_list))
+            # root = dtree.decision_tree(train_df_data, set(AU_INDICES), train_binary_targets)
+            # print("Decision tree built. Now appending...")
+            # T.append(root)
 
-        # for t in thread_list:
-        #     t.join()
+        for t in thread_list:
+            t.join()
 
-        # print(queue_list)
-
-        # for q in queue_list:
-        #     print("Queue", q.get().op)
-        #     print("Queue size", q.qsize())
-        #     T.append(q.get())
+        for q in queue_list:
+            T.append(q.get())
 
         print("All decision trees built")
 
