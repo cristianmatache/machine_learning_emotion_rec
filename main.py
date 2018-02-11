@@ -6,6 +6,7 @@ import numpy as np
 from node import TreeNode
 import utilities as util
 import decision_tree_maker as dtree
+import decision_forest as forest
 
 '''
     Macros
@@ -91,6 +92,8 @@ def compute_confusion_matrix(df_labels, df_data, N):
         print("Starting fold from", test_seg)
         T = []
         test_df_data, test_df_targets, train_df_data, train_df_targets = util.get_train_test_segs(test_seg, N, slice_segments)
+
+        forest.split_in_random(train_df_data, train_df_targets)
 
         for e in EMOTIONS_LIST:
             print("Building decision tree for emotion: ", e)
