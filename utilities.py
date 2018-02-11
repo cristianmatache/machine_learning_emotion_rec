@@ -35,20 +35,12 @@ def to_dataframe(labels, data):
 # this certain emotion and 0 otherwise
 # emotion is an int
 def filter_for_emotion(df, emotion):
-    print("Filtering to binary targets for emotion... ")
+    print("Filtering to binary targets for emotion... ", emotion)
     df_filter = df.copy(deep=True)
     df_filter.loc[(df_filter[0] > emotion) | (df_filter[0] < emotion), 0] = 0
     df_filter.loc[df_filter[0] == emotion, 0] = 1
-    print("Filtering done...")
+    print("Filtering done...", emotion)
     return df_filter
-
-def filter_for_emotion2(df, emotion):
-    print("Filtering to binary targets for emotion... ")
-    emo_df = [] * 45
-    emo_df = np.where(df == emotion, 1, 0)
-    print("Filtering done...")
-    return pd.DataFrame(emo_df)
-
 
 # Computes list [(start, end)] of the limits of K segments used in cross validation in a df of length N
 def preprocess_for_cross_validation(N, K = 10):

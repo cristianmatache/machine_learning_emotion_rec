@@ -29,12 +29,10 @@ def compare_pred_expect(predictions, expectations):
     confusion_matrix = pd.DataFrame(0, index=EMOTIONS_INDICES, columns=EMOTIONS_INDICES)
     predictions, expectations = predictions.reset_index(drop=True), expectations.reset_index(drop=True)
 
-    #print(predictions.index.values == expectations.index.values)
-    
     for index in predictions.index.values:
         e = expectations.iloc[index] - 1
         p = predictions.iloc[index] - 1
-        confusion_matrix.loc[e, p] += 1
+        confusion_matrix.loc[p, e] += 1
 
     return confusion_matrix
 
@@ -60,6 +58,7 @@ def test_trees(T, x2):
 
     print("Computing predictions...")
     predictions = []
+
     for i in x2.index.values:
         example = x2.loc[i]
         tree_predictions = []
@@ -133,5 +132,21 @@ def main():
     end = time.time()
     print("\/\  TOTAL TIME /\/")
     print(end - start)
+    # MOCK_SIZE = 5
+    # df_data_MOCK = pd.DataFrame(np.random.randint(low=0, high=2, size=(MOCK_SIZE, 1)))
+
+    # print(df_data_MOCK)
+    # print(df_data_MOCK.loc[0])
+    # df = df_data_MOCK.loc[df_data_MOCK[1] == 0]
+
+    # print(df)
+    # print("=========================")
+    # print(df.index.values)
+
+    # print(df_data_MOCK.ix[df.index.values])
+    # print("Aici", df_data_MOCK.loc[2])
+    # print("====")
+    # print("Aici 2", df_data_MOCK.ix[2])
+
 
 if __name__ == "__main__": main()

@@ -1,7 +1,6 @@
 import plot
 
 # Tree Structure - TreeNode in Decision Tree
-
 _node_index = 0
 _edges = []
 _labels = {}
@@ -68,7 +67,7 @@ class TreeNode:
             return root.value
         else:
             index = root.op
-            if example.ix[index] == 0:
+            if example.loc[index] == 0:
                 return TreeNode.dfs(root.kids[0], example)
             else:
                 return TreeNode.dfs(root.kids[1], example)
