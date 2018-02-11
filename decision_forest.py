@@ -4,25 +4,22 @@ import numpy as np
 
 # Randomly sample 7 elements from your dataframe
 
-
-def split_in_random(train_df_data, train_df_targets, N = 4):
+# N - number of trees in the forest
+# K - number of examples (df_data) used to train each tree
+def split_in_random(train_df_data, train_df_targets, N = 5, K=670):
     TOTAL = train_df_targets.shape[0]
 
     df = pd.concat([train_df_targets, train_df_data], axis=1)
     samples = []
-    for i in range(N-1):
-        sample = df.sample(int(TOTAL/N))
-        df = df.loc[~df.index.isin(sample.index)]
+    for i in range(N):
+        sample = df.sample(K, replace=True)
+        # df = df.loc[~df.index.isin(sample.index)]
         sample_target = sample.iloc[:, :1]
         sample_data = sample.iloc[:, 1:]
         samples.append((sample_target, sample_data))
-    # last sample might be larger
-    sample_target = df.iloc[:, :1]
-    sample_data = df.iloc[:, 1:]
-    samples.append((sample_target, sample_data))
 
     # print(samples)
-    return samples
+    return samples, N
 
 
 
