@@ -9,21 +9,19 @@ NOISY_DATA_PATH = 'Data/noisydata_students.mat'
 AU_INDICES = list(range(1, 46))
 
 # Loading data from mat files
-def load_raw_data_clean():
+def _load_raw_data(path):
     print("Loading raw data...")
-    mat_contents = sio.loadmat(CLEAN_DATA_PATH)
+    mat_contents = sio.loadmat(path)
     data = mat_contents['x']   # entries/lines which contain the activated AU/muscles
     labels = mat_contents['y'] # the labels from 1-6 of emotions for each entry in data
-    print("Raw data loaded...")
+    print("Raw data loaded...\n")
     return labels, data
 
+def load_raw_data_clean():
+    return _load_raw_data(CLEAN_DATA_PATH)
+
 def load_raw_data_noisy():
-    print("Loading raw data...")
-    mat_contents = sio.loadmat(NOISY_DATA_PATH)
-    data = mat_contents['x']   # entries/lines which contain the activated AU/muscles
-    labels = mat_contents['y'] # the labels from 1-6 of emotions for each entry in data
-    print("Raw data loaded...")
-    return labels, data
+    return _load_raw_data(NOISY_DATA_PATH)
 
 # Converting data to DataFrame format
 def to_dataframe(labels, data):
