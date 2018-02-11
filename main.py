@@ -7,6 +7,7 @@ import utilities as util
 import decision_tree_maker as dtree
 import threading as thd
 import queue
+import measures
 
 '''
     Macros
@@ -175,6 +176,16 @@ def main():
     MOCK_SIZE = 10
     df_data_MOCK = pd.DataFrame(np.random.randint(low=0, high=2, size=(MOCK_SIZE, MOCK_SIZE)))
     df_labels_MOCK = pd.DataFrame(np.random.randint(low=1, high=7, size=(MOCK_SIZE, 1)))
+
+    d = {0: [0.613636,0.095960,0.075630,0.009259,0.166667,0.009662],
+         1: [0.128788,0.696970,0.033613,0.060185,0.098485,0.033816],
+         2: [0.053030,0.025253,0.697479,0.013889,0.090909,0.082126],
+         3: [0.053030,0.070707,0.025210,0.833333,0.098485,0.028986],
+         4: [0.136364,0.050505,0.050420,0.055556,0.507576,0.043478],
+         5: [0.015152,0.060606,0.117647,0.027778,0.037879,0.801932]}
+    confusion_matrix_MOCK = pd.DataFrame(data=d)
+    # print(confusion_matrix_MOCK)
+    # print(measures.compute_binary_confusion_matrix(confusion_matrix_MOCK, 1))
 
     labels, data = util.load_raw_data_clean()
     A = np.array(labels)
