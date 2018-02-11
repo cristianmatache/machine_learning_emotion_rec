@@ -5,12 +5,21 @@ import numpy as np
 pd.options.mode.chained_assignment = None
 
 CLEAN_DATA_PATH = 'Data/cleandata_students.mat'
+NOISY_DATA_PATH = 'Data/noisydata_students.mat'
 AU_INDICES = list(range(1, 46))
 
 # Loading data from mat files
-def load_raw_data():
+def load_raw_data_clean():
     print("Loading raw data...")
     mat_contents = sio.loadmat(CLEAN_DATA_PATH)
+    data = mat_contents['x']   # entries/lines which contain the activated AU/muscles
+    labels = mat_contents['y'] # the labels from 1-6 of emotions for each entry in data
+    print("Raw data loaded...")
+    return labels, data
+
+def load_raw_data_noisy():
+    print("Loading raw data...")
+    mat_contents = sio.loadmat(NOISY_DATA_PATH)
     data = mat_contents['x']   # entries/lines which contain the activated AU/muscles
     labels = mat_contents['y'] # the labels from 1-6 of emotions for each entry in data
     print("Raw data loaded...")
