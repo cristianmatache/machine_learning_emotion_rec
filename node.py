@@ -4,6 +4,7 @@ import plot
 
 _node_index = 0
 _edges = []
+_labels = {}
 _file_index = 0
 
 class TreeNode:
@@ -75,19 +76,22 @@ class TreeNode:
     @staticmethod
     def _dfs_pure(root):
         global _edges
-        if not root.leaf:
+        if root.leaf:
+            _labels[root.index] = root.value
+        else:
+            _labels[root.index] = root.op
             for kid in root.kids:
                 _edges.append((root.index, kid.index))
                 TreeNode._dfs_pure(kid)
 
     @staticmethod
     def plot_tree(root, emotion = "default_emotion"):
-        global _file_index,_edges, _node_index
-        _edges, _node_index = [], 0
+        global _file_index,_edges, _node_index, _labels
+        _labels, _edges, _node_index = {}, [], 0
         TreeNode._dfs_pure(root)
         _file_index += 1
-        print([(x, y) for (x, y) in _edges if x == 0])
-        plot.visualize_tree(_edges, _file_index, emotion=emotion)
+        plot.visualize_tree(_edges, _file_index, emotion=emotion, labels=_labels)
+
 
 
     @staticmethod

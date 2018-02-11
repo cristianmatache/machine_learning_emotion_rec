@@ -79,7 +79,7 @@ def hierarchy_pos_large(G, root, levels=None, width=1., height=1.):
     vert_gap = height / (max([l for l in levels])+1)
     return make_pos({})
 
-def visualize_tree(tree_edges, file_index, root_node = 0, emotion = "default_emotion"):
+def visualize_tree(tree_edges, file_index, labels, root_node = 0, emotion = "default_emotion"):
     def file_name(is_overlap):
         return path + str(file_index) + '-' + emotion + ('' if is_overlap else '-nonoverlap') + '.pdf'
 
@@ -96,13 +96,13 @@ def visualize_tree(tree_edges, file_index, root_node = 0, emotion = "default_emo
     pos_half = hierarchy_pos(G, root_node)
     plt.figure(figsize=(40, 12))
     plt.title(emotion+ '-' + str(file_index))
-    nx.draw(G, pos=pos_half, with_labels=True, node_size=node_size, font_size=font_size, node_color=node_color)
+    nx.draw(G, pos=pos_half, with_labels=True, node_size=node_size, font_size=font_size, node_color=node_color, labels=labels)
     plt.savefig(file_name(True), dpi=1000)
     plt.clf()
 
     pos_all = hierarchy_pos_large(G, root_node)
     plt.figure(figsize=(40, 40))
     plt.title(emotion+ '-' + str(file_index))
-    nx.draw(G, pos=pos_all, with_labels=True, node_size=node_size, font_size=font_size, node_color=node_color)
+    nx.draw(G, pos=pos_all, with_labels=True, node_size=node_size, font_size=font_size, node_color=node_color, labels=labels)
     plt.savefig(file_name(False), dpi=1000)
     plt.clf()
