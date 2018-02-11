@@ -1,11 +1,6 @@
 import sys
-import pandas as pd
 import scipy.stats as stats
-import scipy.io as sio
-import numpy as np
-import random as rand
 from node import TreeNode
-import utilities as util
 
 '''
     Decision tree learning
@@ -70,25 +65,6 @@ def majority_value(bin_targets):
 #     (max_gain, index_gain) = max(all_gains, key=lambda x: x[0]) if all_gains else (-1, -1)
 #     return index_gain
 
-
-# # Gain(attribute) = I(p, n) – Remainder(attribute)
-# def gain(p, n, p0, n0, p1, n1):
-#     return get_info_gain(p, n) - get_remainder(p, n, p0, n0, p1, n1)
-
-# # Information Gain I
-# # I(p, n) = − p+n log 2 ( p+n ) − p+n log 2 ( p+n ) and
-# def get_info_gain(p, n):
-
-#     if p + n == 0:
-#         return 0
-
-#     term = float(p / (p + n))
-#     return stats.entropy([term, 1 - term], base=2)
-
-# # Remainder(attribute) = (p0 + n0)/(p + n) * I(p0, n0) + (p1 + n1)/(p + n) * I(p1, n1)
-# def get_remainder(p, n, p0, n0, p1, n1):
-#     return ((p0 + n0)/(p + n)) * get_info_gain(p0, n0) + ((p1 + n1)/(p + n)) * get_info_gain(p1, n1) if p+n != 0 else 0
-
 def choose_best_decision_attr(examples, attributes, bin_targets):
     max_gain = -sys.maxsize - 1
     index_gain = -1
@@ -127,6 +103,8 @@ def choose_best_decision_attr(examples, attributes, bin_targets):
     return index_gain
 
 
+
+
 # Gain(attribute) = I(p, n) – Remainder(attribute)
 def gain(p, n, p0, n0, p1, n1):
     return get_info_gain(p, n) - get_remainder(p, n, p0, n0, p1, n1)
@@ -143,6 +121,4 @@ def get_info_gain(p, n):
 
 # Remainder(attribute) = (p0 + n0)/(p + n) * I(p0, n0) + (p1 + n1)/(p + n) * I(p1, n1)
 def get_remainder(p, n, p0, n0, p1, n1):
-    if p + n == 0:
-        return 0
-    return ((p0 + n0)/(p + n)) * get_info_gain(p0, n0) + ((p1 + n1)/(p + n)) * get_info_gain(p1, n1)
+    return ((p0 + n0)/(p + n)) * get_info_gain(p0, n0) + ((p1 + n1)/(p + n)) * get_info_gain(p1, n1) if p+n != 0 else 0

@@ -15,6 +15,7 @@ AU_INDICES = list(range(1, ATTRIBUTES_NUMBER + 1))
 NUMBER_OF_EMOTIONS = 6
 EMOTIONS_INDICES = [i for i in range(0, NUMBER_OF_EMOTIONS)]
 EMOTIONS_LIST = ["anger", "disgust", "fear", "happiness", "sadness", "surprise"]
+
 '''
     predictions  - DataFrame column with predicted emotions for each test_data_df,
                  - indexes from 1 to 6
@@ -111,26 +112,17 @@ def compute_confusion_matrix(df_labels, df_data, N):
 # Testing
 def main():
 
-    MOCK_SIZE = 10
-    df_data_MOCK = pd.DataFrame(np.random.randint(low=0, high=2, size=(MOCK_SIZE, MOCK_SIZE)))
-    df_labels_MOCK = pd.DataFrame(np.random.randint(low=1, high=7, size=(MOCK_SIZE, 1)))
-
     labels, data = util.load_raw_data_clean()
     A = np.array(labels)
     labels = [row[0] for row in A]
     df_labels, df_data = util.to_dataframe(labels, data)
 
-    df_labels_MOCK = df_labels
-    df_data_MOCK = df_data
-    N_MOCK = MOCK_SIZE
-
     # Number of examples
     N = df_labels.shape[0]
-    N_MOCK = N
 
     print("----------------------------------- LOADING COMPLETED ----------------------------------- \n")
 
-    res = compute_confusion_matrix(df_labels_MOCK, df_data_MOCK, N_MOCK)
+    res = compute_confusion_matrix(df_labels, df_data, N)
 
     print("----------------------------------- CONFUSION_MATRIX ------------------------------------ \n")
     print(res)
