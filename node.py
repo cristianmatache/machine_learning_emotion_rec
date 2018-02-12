@@ -8,7 +8,6 @@ _file_index = 0
 
 class TreeNode:
 
-
     '''
         self.op    - a label for the corresponding node (e.g. the attribute 
                    - that the node is testing). It must be empty for the leaf node    
@@ -25,7 +24,6 @@ class TreeNode:
                    - leaf node.
 
     '''
-
     def __init__(self, node_label, leaf=False, value=None):
         self.op = node_label
         self.kids = [None] * 2

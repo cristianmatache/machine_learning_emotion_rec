@@ -95,7 +95,7 @@ def test_forest_trees(forest_T, x2):
                 emotion_prediction.append(prediction)
             sum_per_emotion = sum(emotion_prediction)
             all_emotion_prediction.append(sum_per_emotion)
-        print("*********")
+        print("----------------------------------- ALL EMOTION PREDICTIONS -----------------------------------\n")
         print(all_emotion_prediction)
 
         prediction_choice = choose_majority_vote(all_emotion_prediction)
@@ -119,12 +119,13 @@ def compute_confusion_matrix(df_labels, df_data, N):
     segments = util.preprocess_for_cross_validation(N)
 
     for test_seg in segments:
-        print("Starting fold from", test_seg)
+        print("Starting fold from:", test_seg)
         # T = []
         forest_T = []
         test_df_data, test_df_targets, train_df_data, train_df_targets = util.get_train_test_segs(test_seg, N, slice_segments)
 
         samples = forest.split_in_random(train_df_data, train_df_targets)
+        print("Building decision forest...")
         for e in EMOTIONS_LIST:
             T= []
             for (sample_target, sample_data) in samples:
@@ -134,12 +135,12 @@ def compute_confusion_matrix(df_labels, df_data, N):
                 print("Decision tree built. Now appending...")
                 T.append(root)
             forest_T.append(T)
-        print("Forest built")
+        print("Forest built.")
         print(forest_T)
 
         predictions_forest = test_forest_trees(forest_T, test_df_data)
         confusion_matrix = compare_pred_expect(predictions_forest, test_df_targets)
-        print("^^^^^^^^^^^^^^^^^^^CONFUSION MATRIX^^^^^^^^^^^^^^^^^")
+        print("----------------------------------- CONFUSION MATRIX -----------------------------------\n")
         print(confusion_matrix)
         res = res.add(confusion_matrix)
 
@@ -158,48 +159,34 @@ def compute_confusion_matrix(df_labels, df_data, N):
     #     print("Folding ended")
     #     print()
     #
-    res = res.div(10)
+    # res = res.div(10)
+    res = res.div(res.sum(axis=1), axis=0)
     for e in EMOTIONS_LIST:
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print("----------------------------------- MEASUREMENTS -----------------------------------")
         print(measures.compute_binary_confusion_matrix(res, EMOTION_DICT[e]))
 
     return res
 
 # Testing
 def main():
-    start = time.time()
+    START_TIME = time.time()
 
-    labels, data = util.load_raw_data_noisy()
+    labels, data = util.load_raw_data_clean()
     A = np.array(labels)
     labels = [row[0] for row in A]
     df_labels, df_data = util.to_dataframe(labels, data)
+
     # Number of examples
     N = df_labels.shape[0]
-    print("----------------------------------- LOADING COMPLETED ----------------------------------- \n")
+
+    print("----------------------------------- LOADING COMPLETED -----------------------------------\n")
 
     res = compute_confusion_matrix(df_labels, df_data, N)
-    print("----------------------------------- CONFUSION_MATRIX ------------------------------------ \n")
-
+    print("----------------------------------- CONFUSION_MATRIX ------------------------------------\n")
     print(res)
 
-    end = time.time()
-    print("\/\  TOTAL TIME /\/")
-    print(end - start)
-    # MOCK_SIZE = 5
-    # df_data_MOCK = pd.DataFrame(np.random.randint(low=0, high=2, size=(MOCK_SIZE, 1)))
-
-    # print(df_data_MOCK)
-    # print(df_data_MOCK.loc[0])
-    # df = df_data_MOCK.loc[df_data_MOCK[1] == 0]
-
-    # print(df)
-    # print("=========================")
-    # print(df.index.values)
-
-    # print(df_data_MOCK.ix[df.index.values])
-    # print("Aici", df_data_MOCK.loc[2])
-    # print("====")
-    # print("Aici 2", df_data_MOCK.ix[2])
-
+    END_TIME = time.time()
+    print("----------------------------------- TOTAL EXECUTION TIME -----------------------------------\n")
+    print(END_TIME - START_TIME)
 
 if __name__ == "__main__": main()

@@ -2,10 +2,12 @@ import pandas as pd
 import numpy as np
 # from sklearn.model_selection import train_test_split
 
-# Randomly sample 7 elements from your dataframe
+'''
+    Randomly sample 7 elements from your dataframe
 
-# N - number of trees in the forest
-# K - number of examples (df_data) used to train each tree
+    N - number of trees in the forest
+    K - number of examples (df_data) used to train each tree
+'''
 def split_in_random(train_df_data, train_df_targets, N = 6, K=500):
     TOTAL = train_df_targets.shape[0]
 
@@ -18,7 +20,7 @@ def split_in_random(train_df_data, train_df_targets, N = 6, K=500):
         sample_data = sample.iloc[:, 1:]
         samples.append((sample_target.reset_index(drop=True), sample_data.reset_index(drop=True)))
 
-    # print("SAMPLES /////////////////////////")
+    # print("Samples:\n")
     # print(samples)
     return samples
 
