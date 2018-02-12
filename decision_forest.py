@@ -4,6 +4,7 @@ import random as rand
 import decision_tree as dtree
 import utilities as util
 import constants as cnst
+import measures
 
 from node import TreeNode
 
@@ -53,11 +54,16 @@ def test_forest_trees(forest_T, x2):
         predictions.append(prediction_choice + 1)
     return pd.DataFrame(predictions)
 
+def apply_d_forest_parallel(df_labels, df_data, N):
+    print("Running decision forest algorithm on multiple processes.")
+    pass
+
 '''
     Computes a confusion matrix using decison forests,
     improving the prediction accuracy.
 '''
-def compute_confusion_matrix_forest(df_labels, df_data, N):
+def apply_d_forest(df_labels, df_data, N):
+    print("Running decision forest algorithm on a single process.")
     def slice_segments(from_index, to_index):
         return df_data[from_index : to_index + 1], df_labels[from_index : to_index + 1]
 

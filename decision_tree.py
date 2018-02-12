@@ -1,9 +1,11 @@
-import sys
 import pandas as pd
-import scipy.stats as stats
 import random as rand
+import scipy.stats as stats
+import sys
 
+import utilities as util
 import constants as cnst
+import measures
 
 from node import TreeNode
 
@@ -164,6 +166,9 @@ def test_trees(T, x2):
 
     return pd.DataFrame(predictions)
 
+def apply_d_tree_parallel(df_labels, df_data, N):
+    print("Running decision tree algorithm on multiple processes.")
+    pass
 
 '''
     Computes a confusion matrix using decison trees only.
@@ -173,7 +178,9 @@ def test_trees(T, x2):
         - gets the best prediction based on decision trees
         - compare predictions with expectations (df_test_labels)    
 '''
-def compute_confusion_matrix_tree(df_labels, df_data, N):
+def apply_d_tree(df_labels, df_data, N):
+    print("Running decision tree algorithm on a single process.")
+
     def slice_segments(from_index, to_index):
         return df_data[from_index : to_index + 1], df_labels[from_index : to_index + 1]
 
@@ -191,7 +198,7 @@ def compute_confusion_matrix_tree(df_labels, df_data, N):
         for e in cnst.EMOTIONS_LIST:
             print("Building decision tree for emotion...", e)
             train_binary_targets = util.filter_for_emotion(train_df_targets, cnst.EMOTIONS_DICT[e])
-            root = dtree.decision_tree(train_df_data, set(cnst.AU_INDICES), train_binary_targets)
+            root = decision_tree(train_df_data, set(cnst.AU_INDICES), train_binary_targets)
             print("Decision tree built. Now appending...\n")
             T.append(root)
     
