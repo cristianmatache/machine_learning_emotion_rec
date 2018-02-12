@@ -1,14 +1,18 @@
 import time
 import pandas as pd
 import random as rand
-import cross_validation
 import numpy as np
-from node import TreeNode
+
+import cross_validation
 import utilities as util
 import decision_tree_maker as dtree
 import decision_forest as forest
-import measures
 import constants as cnst
+
+import measures
+
+from node import TreeNode
+
 
 '''
     predictions  - DataFrame column with predicted emotions for each test_data_df,
@@ -143,7 +147,7 @@ def compute_confusion_matrix_forest(df_labels, df_data, N):
 
     return res
 
-    
+
 '''
     Computes a confusion matrix using decison trees only.
 '''
