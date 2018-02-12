@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import random as rand
 from multiprocessing import Process
 from multiprocessing import Queue
@@ -108,6 +109,12 @@ def apply_d_forest_parallel(df_labels, df_data, N):
         print(confusion_matrix)
         res = res.add(confusion_matrix)
 
+    diag_res = sum(pd.Series(np.diag(res),
+                        index=[res.index, res.columns]))
+    sum_all_res = res.values.sum()
+    accuracy_res = (diag_res/sum_all_res) * 100
+    print("-----------------------------------  AVERAGE ACCURACY -----------------------------------\n:", accuracy_res)
+
     # res = res.div(10)
     res = res.div(res.sum(axis=1), axis=0)
     for e in cnst.EMOTIONS_LIST:
@@ -153,6 +160,12 @@ def apply_d_forest(df_labels, df_data, N):
         print("----------------------------------- CONFUSION MATRIX -----------------------------------\n")
         print(confusion_matrix)
         res = res.add(confusion_matrix)
+
+    diag_res = sum(pd.Series(np.diag(res),
+                        index=[res.index, res.columns]))
+    sum_all_res = res.values.sum()
+    accuracy_res = (diag_res/sum_all_res) * 100
+    print("-----------------------------------  AVERAGE ACCURACY -----------------------------------\n:", accuracy_res)
 
     # res = res.div(10)
     res = res.div(res.sum(axis=1), axis=0)

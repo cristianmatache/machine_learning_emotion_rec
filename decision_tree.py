@@ -316,6 +316,12 @@ def apply_d_tree_parallel(df_labels, df_data, N):
         print("Folding ended.\n")
         print()
 
+    diag_res = sum(pd.Series(np.diag(res),
+                        index=[res.index, res.columns]))
+    sum_all_res = res.values.sum()
+    accuracy_res = (diag_res/sum_all_res) * 100
+    print("-----------------------------------  AVERAGE ACCURACY -----------------------------------\n:", accuracy_res)
+
     res = res.div(res.sum(axis=1), axis=0)
     for e in cnst.EMOTIONS_LIST:
         print("----------------------------------- MEASUREMENTS -----------------------------------")
@@ -394,7 +400,14 @@ def apply_d_tree(df_labels, df_data, N):
         print("Folding ended.\n")
         print()
 
+    diag_res = sum(pd.Series(np.diag(res),
+                        index=[res.index, res.columns]))
+    sum_all_res = res.values.sum()
+    accuracy_res = (diag_res/sum_all_res) * 100
+    print("-----------------------------------  AVERAGE ACCURACY -----------------------------------\n:", accuracy_res)
+
     res = res.div(res.sum(axis=1), axis=0)
+
     for e in cnst.EMOTIONS_LIST:
         print("----------------------------------- MEASUREMENTS -----------------------------------")
         print(measures.compute_binary_confusion_matrix(res, cnst.EMOTIONS_DICT[e]))
