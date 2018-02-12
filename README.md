@@ -4,12 +4,12 @@ Implementation of decision tree and decision forest algorithms. Each of these al
 
 ## Getting Started
 
-Install dependency libraries by running:
+Install dependency libraries by running
 
 ```
 sudo apt-get update
 sudo apt-get -y install python3-pip
-sudo pip install pipreqs
+sudo pip3 install pipreqs
 sudo pip3 install -r requirements.txt
 ```
 
@@ -23,9 +23,9 @@ We provide a command-line based program. The default command, which will run the
 python3 main.py
 ```
 
-The program actually takes between 0 and 2 arguments:
+The program actually takes between 0 and 2 arguments
 
-0 -> default version from above
+0 -> default version from above.
 
 ```
 python3 main.py
@@ -37,12 +37,20 @@ python3 main.py tree
 python3 main.py forest
 ```
 
-2 -> the first argument is either tree or forest, as above. The second argument should be either 'single' or 'multi', which will decide whether the chosen algorithm will be run on a single process or on multiple processes for improved computational time.
+2 -> the first argument is either tree or forest, as above. The second argument should be either 'single' or 'multi', which will decide whether the chosen algorithm will be run on a single process or on multiple processes for improved computational time. Note that the multiprocess version only seems to be working on Linux environments.
 ```
 python3 main.py tree single
 python3 main.py forest single
 python3 main.py tree multi
 pythone main.py forest multi
+```
+
+## Bonus
+
+The program provides utilities for visualizing the decision tree built for Data/cleandata_students.mat. Just run
+
+```
+python3 main.py visualisation
 ```
 
 ## Authors

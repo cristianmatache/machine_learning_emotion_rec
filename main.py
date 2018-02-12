@@ -22,6 +22,8 @@ def convert_arguments():
             algorithm = dtree.apply_d_tree
         elif tree_or_forest == 'forest':
             algorithm = dforest.apply_d_forest            
+        elif tree_or_forest == 'visualisation':
+            algorithm = dtree.visualise
         else:
             print()
             sys.exit()

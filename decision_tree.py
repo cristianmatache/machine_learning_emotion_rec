@@ -5,6 +5,7 @@ import sys
 
 import utilities as util
 import constants as cnst
+import plot
 import measures
 
 from node import TreeNode
@@ -165,6 +166,11 @@ def test_trees(T, x2):
         predictions.append(prediction_choice + 1)
 
     return pd.DataFrame(predictions)
+
+def visualise(df_labels, df_data, N):
+    for e in cnst.EMOTIONS_LIST:
+        root = decision_tree(df_data, set(cnst.AU_INDICES), util.filter_for_emotion(df_labels, cnst.EMOTIONS_DICT[e]))
+        TreeNode.plot_tree(root)
 
 def apply_d_tree_parallel(df_labels, df_data, N):
     print(">> Running decision tree algorithm on multiple processes.\n")
