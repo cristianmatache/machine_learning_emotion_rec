@@ -1,22 +1,27 @@
 import pandas as pd
-
-EMOTIONS_LIST = ["anger", "disgust", "fear", "happiness", "sadness", "surprise"]
+import constants as cnst
 
 def compute_binary_confusion_matrix(confusion_matrix, emotion):
     # Because confusion matrix has rows and columns indexed from 0 to 5, but emotions are from 1 to 6
     emotion -= 1
     binary_df = pd.DataFrame(0, index=[0,1], columns=[0,1])
+
+    # Classification measures
     TP = confusion_matrix.loc[emotion, emotion]
     FP = confusion_matrix[emotion].values.sum() - TP
+ 
     FN = confusion_matrix.loc[emotion].values.sum() - TP
     TN = confusion_matrix.values.sum() - TP - FP - FN
 
+    # Classificatin rate
     CR = (TP + TN) / (TP + TN + FP + FN)
 
+    # Recall, precision rates and F1 measures
     recall1 = TP / (TP + FN)
     precision1 = TP / (TP + FP)
     F1 = 2 * precision1 * recall1 / (precision1 + recall1)
 
+    # Recall, precision rates and F2 measures
     recall2 =  TN / (TN + FP)
     precision2 = TN / (TN + FN)
     F2 = 2 * precision2 * recall2 / (precision2 + recall2)
@@ -33,7 +38,7 @@ def compute_binary_confusion_matrix(confusion_matrix, emotion):
     binary_df.loc[1,1] = TN
     # print(binary_df)
 
-    return {EMOTIONS_LIST[emotion]: measures}
+    return {cnst.EMOTIONS_LIST[emotion]: measures}
 
 d = {0: [0.606061, 0.060606, 0.092437, 0.013889, 0.136364, 0.019324],
      1: [0.121212, 0.712121, 0.042017, 0.074074, 0.128788, 0.028986],

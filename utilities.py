@@ -10,7 +10,7 @@ pd.options.mode.chained_assignment = None
     Loading data from mat files
 '''
 def _load_raw_data(path):
-    print("Loading raw data...\n")
+    print("Loading raw data...")
     mat_contents = sio.loadmat(path)
     data = mat_contents['x']   # entries/lines which contain the activated AU/muscles
     labels = mat_contents['y'] # the labels from 1-6 of emotions for each entry in data
@@ -30,7 +30,7 @@ def load_raw_data_noisy():
     Converting data to DataFrame format
 '''
 def to_dataframe(labels, data):
-    print("Converting to data frame started...\n")
+    print("Converting to data frame started...")
     df_labels = pd.DataFrame(labels)
     df_data = pd.DataFrame(data, columns=cnst.AU_INDICES)
     print("Converting to data frame done.\n")
@@ -45,7 +45,7 @@ def filter_for_emotion(df, emotion):
     df_filter = df.copy(deep=True)
     df_filter.loc[(df_filter[0] > emotion) | (df_filter[0] < emotion), 0] = 0
     df_filter.loc[df_filter[0] == emotion, 0] = 1
-    print("Filtering done.\n", emotion)
+    print("Filtering done.")
     return df_filter
 
 '''

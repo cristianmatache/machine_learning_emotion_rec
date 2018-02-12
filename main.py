@@ -108,7 +108,8 @@ def compute_confusion_matrix(df_labels, df_data, N):
     segments = util.preprocess_for_cross_validation(N)
 
     for test_seg in segments:
-        print("Starting fold... from:", test_seg)
+        print(">> Starting fold... from:", test_seg)
+        print()
         # T = []
         forest_T = []
         test_df_data, test_df_targets, train_df_data, train_df_targets = util.get_train_test_segs(test_seg, N, slice_segments)
@@ -121,7 +122,7 @@ def compute_confusion_matrix(df_labels, df_data, N):
                 print("Building decision tree for emotion...", e)
                 train_binary_targets = util.filter_for_emotion(sample_target, cnst.EMOTIONS_DICT[e])
                 root = dtree.decision_tree(sample_data, set(cnst.AU_INDICES), train_binary_targets)
-                print("Decision tree built. Now appending...")
+                print("Decision tree built. Now appending...\n")
                 T.append(root)
             forest_T.append(T)
         print("Forest built.\n")
