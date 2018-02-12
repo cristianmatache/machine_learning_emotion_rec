@@ -5,16 +5,6 @@ import networkx as nx
 path = 'plots/'
 
 def hierarchy_pos(G, root, width=1., vert_gap = 0.2, vert_loc = 0, xcenter = 0.5 ):
-    '''If there is a cycle that is reachable from root, then result will not be a hierarchy.
-
-       G: the graph
-       root: the root node of current branch
-       width: horizontal space allocated for this branch - avoids overlap with other branches
-       vert_gap: gap between levels of hierarchy
-       vert_loc: vertical location of root
-       xcenter: horizontal location of root
-    '''
-
     def h_recur(G, root, width=1., vert_gap = 0.2, vert_loc = 0, xcenter = 0.5, pos = None, parent = None, parsed = []):
         if(root not in parsed):
             parsed.append(root)
@@ -29,7 +19,6 @@ def hierarchy_pos(G, root, width=1., vert_gap = 0.2, vert_loc = 0, xcenter = 0.5
             if len(neighbors)!=0:
                 dx = width/len(neighbors)
                 nextx = xcenter - width/2 - dx/2
-                # nextx = xcenter - 0.5 * width - dx
                 for neighbor in neighbors:
                     nextx += dx
                     pos = h_recur(G,neighbor, width = dx, vert_gap = vert_gap, vert_loc = vert_loc-vert_gap, xcenter=nextx, pos=pos,parent = root, parsed = parsed)
@@ -38,18 +27,11 @@ def hierarchy_pos(G, root, width=1., vert_gap = 0.2, vert_loc = 0, xcenter = 0.5
     return h_recur(G, root, width=2, vert_gap = 0.1, vert_loc = 0, xcenter = 0.5)
 
 def hierarchy_pos_large(G, root, levels=None, width=1., height=1.):
-    '''If there is a cycle that is reachable from root, then this will see infinite recursion.
-       G: the graph
-       root: the root node
-       levels: a dictionary
-               key: level number (starting from 0)
-               value: number of nodes in this level
-       width: horizontal space allocated for drawing
-       height: vertical space allocated for drawing'''
     TOTAL = "total"
     CURRENT = "current"
     def make_levels(levels, node=root, currentLevel=0, parent=None):
-        """Compute the number of nodes for each level
+        """
+        Compute the number of nodes for each level
         """
         if not currentLevel in levels:
             levels[currentLevel] = {TOTAL : 0, CURRENT : 0}

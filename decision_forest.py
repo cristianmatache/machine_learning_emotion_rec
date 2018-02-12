@@ -20,10 +20,10 @@ def split_in_random(train_df_data, train_df_targets, N = 6, K=500):
         sample_target = sample.iloc[:, :1]
         sample_data = sample.iloc[:, 1:]
         samples.append((sample_target.reset_index(drop=True), sample_data.reset_index(drop=True)))
-
     return samples
 
 def choose_majority_vote(all_emotion_prediction):
+    # TODO: make other heuristics for majority vote apart from random when equality between max's
     M = max(all_emotion_prediction)
     occurrences = [index for index, value in enumerate(all_emotion_prediction) if value == M]
     
@@ -34,15 +34,18 @@ def choose_majority_vote(all_emotion_prediction):
     else:
         return rand.choice(occurrences)
 
+'''
+    x2 = test_df_data
+'''
 def test_forest_trees(forest_T, x2):
-    # x2 = test_df_data
     predictions = []
     for i in x2.index.values:
         example = x2.loc[i]
         all_emotion_prediction = []
         for T in forest_T:
             emotion_prediction = []
-            for tree in T: # how emotion vote
+            for tree in T:
+                # how emotion votes
                 prediction = TreeNode.dfs(tree, example)
                 emotion_prediction.append(prediction)
             sum_per_emotion = sum(emotion_prediction)

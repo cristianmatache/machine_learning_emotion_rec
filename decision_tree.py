@@ -5,7 +5,6 @@ import sys
 
 import utilities as util
 import constants as cnst
-import plot
 import measures
 
 from node import TreeNode
@@ -102,14 +101,10 @@ def gain(p, n, p0, n0, p1, n1):
 # Information Gain I
 # I(p, n) = − p+n log 2 ( p+n ) − p+n log 2 ( p+n ) and
 def get_info_gain(p, n):
-
     if p + n == 0:
         return 0
-
-
     term_1 = float(p / (p + n))
     term_2 = float(n / (p + n))
-
     return stats.entropy([term_1, term_2], base=2)
 
 # Remainder(attribute) = (p0 + n0)/(p + n) * I(p0, n0) + (p1 + n1)/(p + n) * I(p1, n1)

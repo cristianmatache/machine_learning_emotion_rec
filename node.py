@@ -107,8 +107,6 @@ class TreeNode:
         _file_index += 1
         plot.visualize_tree(_edges, _file_index, emotion=emotion, labels=_labels)
 
-
-
     @staticmethod
     def traverse(root):
         current_level = [root]

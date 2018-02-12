@@ -31,7 +31,7 @@ The program actually takes between 0 and 2 arguments
 python3 main.py
 ```
 
-1 -> either 'tree' or 'forest', which decides which algorithm you want to apply on the data. The algorithm will run o a single process.
+1 -> either 'tree' or 'forest', which decides which algorithm you want to apply on the data. The algorithm will run on a single process.
 ```
 python3 main.py tree
 python3 main.py forest
@@ -48,10 +48,10 @@ pythone main.py forest multi
 ## Bonus
 
 The program provides utilities for visualizing the decision tree built for Data/cleandata_students.mat. Just run
-
 ```
 python3 main.py visualisation
 ```
+Visualisation will create (if not already created) a directory called "plots" which will contain 2 images for each decision tree per emotion (one image shows the structure of the tree the other one is made such nodes don't overlap)
 
 ## Authors
 

@@ -19,7 +19,6 @@ def cross_validation_error(df_labels, N, df_data, segments):
             TreeNode.plot_tree(root, e)
             # root = decision_tree(df_data, set(cnst.AU_INDICES), binary_targets)
             print("/\ Decision tree built.\n")
-            # TreeNode.traverse(root)
             count = 0
             # Counts number of incorrectly predicted tests
             for i in test_df_data.index.values:

@@ -2,9 +2,7 @@ import unittest
 import main as m
 import numpy as np
 import utilities as util
-import decision_tree as dtree
 import pandas as pd
-import random as rand
 
 class TestHelpers(unittest.TestCase):
 
@@ -23,15 +21,15 @@ class TestHelpers(unittest.TestCase):
             prediction = m.choose_prediction(test)
             self.assertTrue(prediction >= 0 and prediction <=5)
 
-    def test_confusion_matrix(self):
-        labels, data = util.load_raw_data_clean()
-        A = np.array(labels)
-        labels = [row[0] for row in A]
-        df_labels, df_data = util.to_dataframe(labels, data)
-        # Number of examples
-        N = df_labels.shape[0]
-        res = compute_confusion_matrix(df_labels_MOCK, df_data_MOCK, N_MOCK)
-        pd.Series(np.diag(res), index=[res.index, res.columns])        
+    # def test_confusion_matrix(self):
+    #     labels, data = util.load_raw_data_clean()
+    #     A = np.array(labels)
+    #     labels = [row[0] for row in A]
+    #     df_labels, df_data = util.to_dataframe(labels, data)
+    #     # Number of examples
+    #     N = df_labels.shape[0]
+    #     res = compute_confusion_matrix(df_labels_MOCK, df_data_MOCK, N_MOCK)
+    #     pd.Series(np.diag(res), index=[res.index, res.columns])
 
 if __name__ == "__main__":
     unittest.main()
