@@ -22,20 +22,6 @@ def split_in_random(train_df_data, train_df_targets, N = 6, K=500):
     # print(samples)
     return samples
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 d1 ={0: [1, 2, 3, 4, 5, 6, 7, 8, 9],
      1: [1, 2, 3, 4, 5, 6, 7, 8, 9],
      2: [1, 2, 3, 4, 5, 6, 7, 8, 9],
