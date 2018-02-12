@@ -99,7 +99,7 @@ def test_forest_trees(forest_T, x2):
         - gets the best prediction based on decision trees
         - compare predictions with expectations (df_test_labels)
 '''
-def compute_confusion_matrix(df_labels, df_data, N):
+def compute_confusion_matrix_forest(df_labels, df_data, N):
     def slice_segments(from_index, to_index):
         return df_data[from_index : to_index + 1], df_labels[from_index : to_index + 1]
 
@@ -157,6 +157,44 @@ def compute_confusion_matrix(df_labels, df_data, N):
 
     return res
 
+def compute_confusion_matrix_tree(df_labels, df_data, N):
+    def slice_segments(from_index, to_index):
+        return df_data[from_index : to_index + 1], df_labels[from_index : to_index + 1]
+
+    res = pd.DataFrame(0, index=cnst.EMOTIONS_INDICES, columns=cnst.EMOTIONS_INDICES)
+
+    segments = util.preprocess_for_cross_validation(N)
+
+    for test_seg in segments:
+        print(">> Starting fold... from:", test_seg)
+        print()
+
+        T = []
+        test_df_data, test_df_targets, train_df_data, train_df_targets = util.get_train_test_segs(test_seg, N, slice_segments)
+
+        for e in cnst.EMOTIONS_LIST:
+            print("Building decision tree for emotion...", e)
+            train_binary_targets = util.filter_for_emotion(train_df_targets, cnst.EMOTIONS_DICT[e])
+            root = dtree.decision_tree(train_df_data, set(cnst.AU_INDICES), train_binary_targets)
+            print("Decision tree built. Now appending...\n")
+            T.append(root)
+    
+        print("All decision trees built.\n")
+    
+        predictions = test_trees(T, test_df_data)
+        confusion_matrix = compare_pred_expect(predictions, test_df_targets)
+        res = res.add(confusion_matrix)
+    
+    # res = res.div(10)
+    res = res.div(res.sum(axis=1), axis=0)
+    
+    for e in cnst.EMOTIONS_LIST:
+        print("----------------------------------- MEASUREMENTS -----------------------------------")
+        print(measures.compute_binary_confusion_matrix(res, cnst.EMOTIONS_DICT[e]))
+
+    return res
+
+
 # Testing
 def main():
     START_TIME = time.time()
@@ -171,7 +209,7 @@ def main():
 
     print("----------------------------------- LOADING COMPLETED -----------------------------------\n")
 
-    res = compute_confusion_matrix(df_labels, df_data, N)
+    res = compute_confusion_matrix_forest(df_labels, df_data, N)
     print("----------------------------------- CONFUSION_MATRIX ------------------------------------\n")
     print(res)
 
