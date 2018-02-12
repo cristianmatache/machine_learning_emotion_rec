@@ -2,12 +2,18 @@ import pandas as pd
 import random as rand
 import scipy.stats as stats
 import sys
+from multiprocessing import Process
+from multiprocessing import Queue
 
 import utilities as util
 import constants as cnst
 import measures
 
 from node import TreeNode
+
+def decision_tree_parallel(examples, attributes, bin_targets, queue):
+    root = decision_tree(examples, attributes, bin_targets)
+    queue.put(root)
 
 '''
     Decision tree learning
@@ -165,11 +171,58 @@ def test_trees(T, x2):
 def visualise(df_labels, df_data, N):
     for e in cnst.EMOTIONS_LIST:
         root = decision_tree(df_data, set(cnst.AU_INDICES), util.filter_for_emotion(df_labels, cnst.EMOTIONS_DICT[e]))
-        TreeNode.plot_tree(root)
+        TreeNode.plot_tree(root, e)
 
 def apply_d_tree_parallel(df_labels, df_data, N):
     print(">> Running decision tree algorithm on multiple processes.\n")
-    pass
+    def slice_segments(from_index, to_index):
+        return df_data[from_index : to_index + 1], df_labels[from_index : to_index + 1]
+
+    res = pd.DataFrame(0, index=cnst.EMOTIONS_INDICES, columns=cnst.EMOTIONS_INDICES)
+
+    segments = util.preprocess_for_cross_validation(N)
+
+    for test_seg in segments:
+        print(">> Starting fold... from:", test_seg)
+        print()
+
+        T = []
+        test_df_data, test_df_targets, train_df_data, train_df_targets = util.get_train_test_segs(test_seg, N, slice_segments)
+
+        processes = []
+        queue_list = []
+
+        for e in cnst.EMOTIONS_LIST:
+            print("Building decision tree for emotion...", e)
+            train_binary_targets = util.filter_for_emotion(train_df_targets, cnst.EMOTIONS_DICT[e])
+            
+            q = Queue()
+            queue_list.append(q)
+
+            process = Process(target=decision_tree_parallel, args=(train_df_data, set(cnst.AU_INDICES), train_binary_targets, q))
+            processes.append(process)
+            process.start()
+
+        for p in processes:
+            p.join()
+
+        for q in queue_list:
+            T.append(q.get()) 
+    
+        print("All decision trees built.\n")
+    
+        predictions = test_trees(T, test_df_data)
+        confusion_matrix = compare_pred_expect(predictions, test_df_targets)
+        res = res.add(confusion_matrix)
+    
+    # res = res.div(10)
+    res = res.div(res.sum(axis=1), axis=0)
+    
+    for e in cnst.EMOTIONS_LIST:
+        print("----------------------------------- MEASUREMENTS -----------------------------------")
+        print(measures.compute_binary_confusion_matrix(res, cnst.EMOTIONS_DICT[e]))
+
+    return res
 
 '''
     Computes a confusion matrix using decison trees only.
