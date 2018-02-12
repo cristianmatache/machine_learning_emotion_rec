@@ -4,9 +4,7 @@ import decision_tree as dtree
 import constants as cnst
 
 def cross_validation_error(df_labels, N, df_data, segments):
-    def slice_segments(from_index, to_index):
-        return df_data[from_index : to_index + 1], binary_targets[from_index : to_index + 1]
-
+    
     error_list = {'anger': 1, 'disgust': 2, 'fear': 3, 'happiness': 4, 'sadness': 5, 'surprise': 6}
     for e in cnst.EMOTIONS_LIST:
         total_error_for_emotion = 0
@@ -14,7 +12,7 @@ def cross_validation_error(df_labels, N, df_data, segments):
         print("/\ Decision tree building for emotion:", e)
         binary_targets = util.filter_for_emotion(df_labels, cnst.EMOTIONS_DICT[e])
         for test_seg in segments:
-            test_df_data, test_df_targets, train_df_data, train_df_targets = util.get_train_test_segs(test_seg, N, slice_segments)
+            test_df_data, test_df_targets, train_df_data, train_df_targets = util.divide_data(test_seg, N, df_data, df_labels)
             root = dtree.decision_tree(train_df_data, set(cnst.AU_INDICES), train_df_targets)
             TreeNode.plot_tree(root, e)
             # root = decision_tree(df_data, set(cnst.AU_INDICES), binary_targets)

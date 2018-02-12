@@ -15,7 +15,7 @@ def convert_arguments():
 
     if (len(sys.argv) == 1):
         algorithm = dforest.apply_d_forest
-    
+
     elif (len(sys.argv) == 2):
         tree_or_forest = sys.argv[1]
         if tree_or_forest == 'tree':
@@ -45,7 +45,7 @@ def convert_arguments():
     else:
         print(WRONG_ARGUMENTS_MSG)
         sys.exit()
-    return algorithm    
+    return algorithm
 
 # Testing
 def main():
@@ -61,12 +61,12 @@ def main():
 
     # Number of examples
     N = df_labels.shape[0]
-
+    dtree.apply_d_tree(df_labels, df_data, N)
     print("----------------------------------- LOADING COMPLETED -----------------------------------\n")
 
-    print("----------------------------------- CONFUSION_MATRIX ------------------------------------\n")
-    res = algorithm(df_labels, df_data, N)
-    print(res)
+    # print("----------------------------------- CONFUSION_MATRIX ------------------------------------\n")
+    # res = algorithm(df_labels, df_data, N)
+    # print(res)
 
     print("----------------------------------- TOTAL EXECUTION TIME -----------------------------------\n")
     END_TIME = time.time()

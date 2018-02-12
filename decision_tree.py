@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import random as rand
 import scipy.stats as stats
 import sys
@@ -129,35 +130,103 @@ def compare_pred_expect(predictions, expectations):
         confusion_matrix.loc[p, e] += 1
 
     return confusion_matrix
+"""
+Input: List with length = 6 of tuples of the form (prediction, depth, percentage)
+prediction : Each tree's prediction for one specific example
+depth: The depth at which the perticular prediction was found on the tree
+percentage: The accuracy of that specific tree based on it's performance on the validation data
 
-'''
-    tree_predictions - 6 predictions from the 6 decisin trees for one emotion
-    Returns index of best prediction in list, from 0 to 5.
-    Uses random function for the no predictions at all or more than 2 predictions
-''' 
-def choose_prediction(tree_predictions):
-    occurrences = [index for index, value in enumerate(tree_predictions) if value == 1]
+Output: The most accurate prediction
+Three cases: 1. One tree recognized this emotion(a single "1" value in predictions)
+                => return the index of the tree
+             2. Zero trees recognized this emotion =>
+              First Criteria: Choose tree which decided to not recognize it furthest
+                                away from root (highest depth)
+              Second Criteria: Choose tree with lowest accuracy
+             3. Multiple trees recognized this emotion =>
+               First Criterion: Choose tree which recognized it closest to the root
+                                reason: more generality
+               Second Criterion: Choose tree with highest accuracy
+"""
+def choose_prediction_random(T_P_D):
+    T, predictions, depths = zip*(T_P_D)
+    occurrences = [index for index, value in enumerate(predictions) if value == 1]
     if len(occurrences) == 1:
         return occurrences[0]
     elif len(occurrences) == 0:
         return rand.randint(0, 5)
+
+def choose_prediction_optimised(pred_proc_depth):
+    predictions, proc, depths  = zip(*pred_proc_depth)
+    indexes = [index for index, value in enumerate(predictions) if value == 1]
+
+    if len(indexes) == 1:
+        return indexes[0]
+    elif len(indexes) == 0:
+        res = 0
+        MAX = 0
+        index = 0
+        max_depth_indexes = []
+        for i in range(0, len(depths)):
+            if depths[i] > MAX:
+                MAX = depths[i]
+                index = i
+                del max_depth_indexes[:]
+                max_depth_indexes.append(i)
+            elif depths[i] == MAX:
+                max_depth_indexes.append(i)
+        if len(max_depth_indexes) == 1:
+            res = max_depth_indexes[0]
+        else:
+            min_proc = 100
+            min_proc_index = 0
+            for i in max_depth_indexes:
+                if (proc[i] < min_proc):
+                    min_proc = proc[i]
+                    min_proc_index = i
+            res = min_proc_index
+        return res
     else:
-        return rand.choice(occurrences)
+        res = 0
+        MIN = 10000
+        index = 0
+        max_depth_indexes = []
+        for i in indexes:
+            if depths[i] < MIN:
+                MIN = depths[i]
+                index = i
+                del max_depth_indexes[:]
+                max_depth_indexes.append(i)
+            elif depths[i] == MIN:
+                max_depth_indexes.append(i)
+        if len(max_depth_indexes) == 1:
+            res = max_depth_indexes[0]
+        else:
+            max_proc = 0
+            max_proc_index = 0
+            for i in max_depth_indexes:
+                if (proc[i] > max_proc):
+                    max_proc = proc[i]
+                    max_proc_index = i
+            res = max_proc_index
+        return res
 
 '''
-    Takes your trained trees (all six) T and the features x2 and 
+    Takes your trained trees (all six) T and the features x2 and
     produces a vector of label predictions
 '''
-def test_trees(T, x2):
+def test_trees(T_P, x2):
+    T, P = zip(*T_P)
     predictions = []
+
     for i in x2.index.values:
         example = x2.loc[i]
-        tree_predictions = []
-        for tree in T:
-            prediction = TreeNode.dfs(tree, example)
-            tree_predictions.append(prediction)
+        T_P_D = []
+        for j in range(0, 6):
+            prediction, depth = TreeNode.dfs_with_depth(T[j], example)
+            T_P_D.append([prediction, P[j], depth])
 
-        prediction_choice = choose_prediction(tree_predictions)
+        prediction_choice = choose_prediction_optimised(T_P_D)
         predictions.append(prediction_choice + 1)
 
     return pd.DataFrame(predictions)
@@ -177,13 +246,10 @@ def apply_d_tree_parallel(df_labels, df_data, N):
         - take N - 1 training data/training targets
         - make decision trees
         - gets the best prediction based on decision trees
-        - compare predictions with expectations (df_test_labels)    
+        - compare predictions with expectations (df_test_labels)
 '''
 def apply_d_tree(df_labels, df_data, N):
     print(">> Running decision tree algorithm on a single process.\n")
-
-    def slice_segments(from_index, to_index):
-        return df_data[from_index : to_index + 1], df_labels[from_index : to_index + 1]
 
     res = pd.DataFrame(0, index=cnst.EMOTIONS_INDICES, columns=cnst.EMOTIONS_INDICES)
 
@@ -194,24 +260,62 @@ def apply_d_tree(df_labels, df_data, N):
         print()
 
         T = []
-        test_df_data, test_df_targets, train_df_data, train_df_targets = util.get_train_test_segs(test_seg, N, slice_segments)
+        # Split data into 90% Training and 10% Testing
+        test_df_data, test_df_targets, train_df_data, train_df_targets = util.divide_data(test_seg, N, df_data, df_labels)
 
+        # Further split trainig data into 90% Training and 10% Validation data
+        K = train_df_data.shape[0]
+        segs = util.preprocess_for_cross_validation(K)
+        validation_data, validation_targets, train_data, train_targets = util.divide_data(segs[-1], K, train_df_data, train_df_targets)
+
+        # Train Trees
         for e in cnst.EMOTIONS_LIST:
-            print("Building decision tree for emotion...", e)
+            print("Building decision tree for emotion: ", e)
             train_binary_targets = util.filter_for_emotion(train_df_targets, cnst.EMOTIONS_DICT[e])
-            root = decision_tree(train_df_data, set(cnst.AU_INDICES), train_binary_targets)
-            print("Decision tree built. Now appending...\n")
+            root = decision_tree(train_data, set(cnst.AU_INDICES), train_binary_targets)
+            print("Decision tree built. Now appending...")
             T.append(root)
-    
-        print("All decision trees built.\n")
-    
-        predictions = test_trees(T, test_df_data)
+
+        # Use validation data to set a priority to each tree based on which is more accurate
+        percentage = []
+        T_P = []
+        for e in cnst.EMOTIONS_LIST:
+            print("\nValidation phase for emotion: ", e)
+            validation_binary_targets = util.filter_for_emotion(validation_targets, cnst.EMOTIONS_DICT[e])
+            results = []
+            # Calculate how accurate each tree is when predicting emotions
+            for i in validation_data.index.values:
+                results.append(TreeNode.dfs2(T[cnst.EMOTIONS_DICT[e]- 1], validation_data.loc[i], validation_binary_targets.loc[i].at[0]))
+            ones = results.count(1)
+            percentage.append(ones/len(results))
+            print("Validation phase ended. Priority levels have been set")
+
+        print("All decision trees built")
+
+        # List containing (Tree, Percentage) tuples
+        T_P = list(zip(T, percentage))
+
+        predictions = test_trees(T_P, test_df_data)
         confusion_matrix = compare_pred_expect(predictions, test_df_targets)
+
+        print(confusion_matrix)
+        # Print accuracy for each fold
+        diag = sum(pd.Series(np.diag(confusion_matrix),
+                            index=[confusion_matrix.index, confusion_matrix.columns]))
+        sum_all = confusion_matrix.values.sum()
+        accuracy = (diag/sum_all) * 100
+        print("Accuracy:", accuracy)
+
         res = res.add(confusion_matrix)
-    
-    # res = res.div(10)
+        print("Folding ended")
+        print()
+
     res = res.div(res.sum(axis=1), axis=0)
-    
+    print(res)
+    return res
+
+
+
     for e in cnst.EMOTIONS_LIST:
         print("----------------------------------- MEASUREMENTS -----------------------------------")
         print(measures.compute_binary_confusion_matrix(res, cnst.EMOTIONS_DICT[e]))

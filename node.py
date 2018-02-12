@@ -9,9 +9,9 @@ _file_index = 0
 class TreeNode:
 
     '''
-        self.op    - a label for the corresponding node (e.g. the attribute 
-                   - that the node is testing). It must be empty for the leaf node    
-    
+        self.op    - a label for the corresponding node (e.g. the attribute
+                   - that the node is testing). It must be empty for the leaf node
+
         self.kids  - a cell array which will contain the subtrees that initiate from the
                    - corresponding node.
 
@@ -68,7 +68,6 @@ class TreeNode:
     def dfs2(root, example, expectation):
         if root.leaf:
             is_correct = root.value == expectation
-            print("1" if is_correct else "0", end="")
             return 1 if is_correct else 0
         else:
             index = root.op
@@ -87,6 +86,17 @@ class TreeNode:
                 return TreeNode.dfs(root.kids[0], example)
             else:
                 return TreeNode.dfs(root.kids[1], example)
+
+    @staticmethod
+    def dfs_with_depth(root, example, depth = 1):
+        if root.leaf:
+            return root.value, depth
+        else:
+            index = root.op
+            if example.loc[index] == 0:
+                return TreeNode.dfs_with_depth(root.kids[0], example, depth + 1)
+            else:
+                return TreeNode.dfs_with_depth(root.kids[1], example, depth + 1)
 
     @staticmethod
     def _dfs_pure(root):

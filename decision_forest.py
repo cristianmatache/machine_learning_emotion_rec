@@ -26,7 +26,7 @@ def choose_majority_vote(all_emotion_prediction):
     # TODO: make other heuristics for majority vote apart from random when equality between max's
     M = max(all_emotion_prediction)
     occurrences = [index for index, value in enumerate(all_emotion_prediction) if value == M]
-    
+
     if len(occurrences) == 1:
         return occurrences[0]
     elif len(occurrences) == 0:
@@ -67,8 +67,6 @@ def apply_d_forest_parallel(df_labels, df_data, N):
 '''
 def apply_d_forest(df_labels, df_data, N):
     print(">> Running decision forest algorithm on a single process.\n")
-    def slice_segments(from_index, to_index):
-        return df_data[from_index : to_index + 1], df_labels[from_index : to_index + 1]
 
     res = pd.DataFrame(0, index=cnst.EMOTIONS_INDICES, columns=cnst.EMOTIONS_INDICES)
 
@@ -79,7 +77,7 @@ def apply_d_forest(df_labels, df_data, N):
         print()
 
         forest_T = []
-        test_df_data, test_df_targets, train_df_data, train_df_targets = util.get_train_test_segs(test_seg, N, slice_segments)
+        test_df_data, test_df_targets, train_df_data, train_df_targets = util.divide_data(test_seg, N, df_data, df_labels)
 
         samples = split_in_random(train_df_data, train_df_targets)
         print("Building decision forest...")
@@ -107,4 +105,4 @@ def apply_d_forest(df_labels, df_data, N):
         print("----------------------------------- MEASUREMENTS -----------------------------------")
         print(measures.compute_binary_confusion_matrix(res, cnst.EMOTIONS_DICT[e]))
 
-    return res    
+    return res
