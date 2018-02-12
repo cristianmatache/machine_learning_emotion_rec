@@ -118,8 +118,8 @@ def compute_confusion_matrix(df_labels, df_data, N):
         for e in cnst.EMOTIONS_LIST:
             T= []
             for (sample_target, sample_data) in samples:
-                print("Building decision tree for emotion: ", e)
-                train_binary_targets = util.filter_for_emotion(sample_target, cnst.EMOTION_DICT[e])
+                print("Building decision tree for emotion...", e)
+                train_binary_targets = util.filter_for_emotion(sample_target, cnst.EMOTIONS_DICT[e])
                 root = dtree.decision_tree(sample_data, set(cnst.AU_INDICES), train_binary_targets)
                 print("Decision tree built. Now appending...")
                 T.append(root)
@@ -135,7 +135,7 @@ def compute_confusion_matrix(df_labels, df_data, N):
 
     #     for e in cnst.EMOTIONS_LIST:
     #         print("Building decision tree for emotion: ", e)
-    #         train_binary_targets = util.filter_for_emotion(train_df_targets, cnst.EMOTION_DICT[e])
+    #         train_binary_targets = util.filter_for_emotion(train_df_targets, cnst.EMOTIONS_DICT[e])
     #         root = dtree.decision_tree(train_df_data, set(cnst.AU_INDICES), train_binary_targets)
     #         print("Decision tree built. Now appending...")
     #         T.append(root)
@@ -152,7 +152,7 @@ def compute_confusion_matrix(df_labels, df_data, N):
     res = res.div(res.sum(axis=1), axis=0)
     for e in cnst.EMOTIONS_LIST:
         print("----------------------------------- MEASUREMENTS -----------------------------------")
-        print(measures.compute_binary_confusion_matrix(res, cnst.EMOTION_DICT[e]))
+        print(measures.compute_binary_confusion_matrix(res, cnst.EMOTIONS_DICT[e]))
 
     return res
 
