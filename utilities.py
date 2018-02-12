@@ -1,37 +1,39 @@
 import pandas as pd
 import scipy.io as sio
-import numpy as np
+import constants as cnst
 
 pd.options.mode.chained_assignment = None
 
-CLEAN_DATA_PATH = 'Data/cleandata_students.mat'
-NOISY_DATA_PATH = 'Data/noisydata_students.mat'
-AU_INDICES = list(range(1, 46))
+#  ------------------ INPUT ------------------
 
 '''
     Loading data from mat files
 '''
 def _load_raw_data(path):
-    print("Loading raw data...")
+    print("Loading raw data...\n")
     mat_contents = sio.loadmat(path)
     data = mat_contents['x']   # entries/lines which contain the activated AU/muscles
     labels = mat_contents['y'] # the labels from 1-6 of emotions for each entry in data
-    print("Raw data loaded...\n")
+    print("Raw data loaded.\n")
     return labels, data
 
 def load_raw_data_clean():
-    return _load_raw_data(CLEAN_DATA_PATH)
+    return _load_raw_data(cnst.CLEAN_DATA_PATH)
 
 def load_raw_data_noisy():
-    return _load_raw_data(NOISY_DATA_PATH)
+    return _load_raw_data(cnst.NOISY_DATA_PATH)
+
+
+# ------------------ DATA MANIPULATION ------------------
+
 '''
     Converting data to DataFrame format
 '''
 def to_dataframe(labels, data):
-    print("Converting to data frame started...")
+    print("Converting to data frame started...\n")
     df_labels = pd.DataFrame(labels)
-    df_data = pd.DataFrame(data, columns=AU_INDICES)
-    print("Converting to data frame done...")
+    df_data = pd.DataFrame(data, columns=cnst.AU_INDICES)
+    print("Converting to data frame done.\n")
     return df_labels, df_data
 '''
     Filter a vector in df format to be 1 where we have
@@ -39,11 +41,11 @@ def to_dataframe(labels, data):
     emotion is an int
 '''
 def filter_for_emotion(df, emotion):
-    print("Filtering to binary targets for emotion... ", emotion)
+    print("Filtering to binary targets for emotion...", emotion)
     df_filter = df.copy(deep=True)
     df_filter.loc[(df_filter[0] > emotion) | (df_filter[0] < emotion), 0] = 0
     df_filter.loc[df_filter[0] == emotion, 0] = 1
-    print("Filtering done...", emotion)
+    print("Filtering done.\n", emotion)
     return df_filter
 
 '''
