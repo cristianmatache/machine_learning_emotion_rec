@@ -92,7 +92,8 @@ def test_forest_trees(forest_T, x2):
     return pd.DataFrame(predictions)
 
 '''
-    Computes a confusion matrix.
+    Computes a confusion matrix using decison forests,
+    improving the prediction accuracy.
     Does N-folds, for each of them the following algo been applied:
         - take N - 1 training data/training targets
         - make decision trees
@@ -110,7 +111,7 @@ def compute_confusion_matrix_forest(df_labels, df_data, N):
     for test_seg in segments:
         print(">> Starting fold... from:", test_seg)
         print()
-        # T = []
+
         forest_T = []
         test_df_data, test_df_targets, train_df_data, train_df_targets = util.get_train_test_segs(test_seg, N, slice_segments)
 
@@ -134,21 +135,6 @@ def compute_confusion_matrix_forest(df_labels, df_data, N):
         print(confusion_matrix)
         res = res.add(confusion_matrix)
 
-    #     for e in cnst.EMOTIONS_LIST:
-    #         print("Building decision tree for emotion: ", e)
-    #         train_binary_targets = util.filter_for_emotion(train_df_targets, cnst.EMOTIONS_DICT[e])
-    #         root = dtree.decision_tree(train_df_data, set(cnst.AU_INDICES), train_binary_targets)
-    #         print("Decision tree built. Now appending...")
-    #         T.append(root)
-    #
-    #     print("All decision trees built")
-    #
-    #     predictions = test_trees(T, test_df_data)
-    #     confusion_matrix = compare_pred_expect(predictions, test_df_targets)
-    #     res = res.add(confusion_matrix)
-    #     print("Folding ended")
-    #     print()
-    #
     # res = res.div(10)
     res = res.div(res.sum(axis=1), axis=0)
     for e in cnst.EMOTIONS_LIST:
@@ -157,6 +143,10 @@ def compute_confusion_matrix_forest(df_labels, df_data, N):
 
     return res
 
+    
+'''
+    Computes a confusion matrix using decison trees only.
+'''
 def compute_confusion_matrix_tree(df_labels, df_data, N):
     def slice_segments(from_index, to_index):
         return df_data[from_index : to_index + 1], df_labels[from_index : to_index + 1]
