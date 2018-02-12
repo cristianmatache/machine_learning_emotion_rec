@@ -15,7 +15,7 @@ from node import TreeNode
     N - number of trees in the forest
     K - number of examples (df_data) used to train each tree
 '''
-def split_in_random(train_df_data, train_df_targets, N = 6, K=500):
+def split_in_random(train_df_data, train_df_targets, N = 10, K=500):
     df = pd.concat([train_df_targets, train_df_data], axis=1)
     samples = []
     for i in range(N):

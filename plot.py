@@ -63,7 +63,7 @@ def hierarchy_pos_large(G, root, levels=None, width=1., height=1.):
 
 def visualize_tree(tree_edges, file_index, labels, root_node = 0, emotion = "default_emotion"):
     def file_name(is_overlap):
-        return path + str(file_index) + '-' + emotion + ('' if is_overlap else '-nonoverlap') + '.png'
+        return path + str(file_index) + '-' + emotion + ('' if is_overlap else '-nonoverlap') + '.pdf'
 
     G = nx.Graph()
     G.add_edges_from(tree_edges)
