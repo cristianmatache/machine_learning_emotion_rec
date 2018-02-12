@@ -1,6 +1,10 @@
 import sys
 import pandas as pd
 import scipy.stats as stats
+import random as rand
+
+import constants as cnst
+
 from node import TreeNode
 
 '''
@@ -108,3 +112,95 @@ def get_info_gain(p, n):
 # Remainder(attribute) = (p0 + n0)/(p + n) * I(p0, n0) + (p1 + n1)/(p + n) * I(p1, n1)
 def get_remainder(p, n, p0, n0, p1, n1):
     return ((p0 + n0)/(p + n)) * get_info_gain(p0, n0) + ((p1 + n1)/(p + n)) * get_info_gain(p1, n1) if p+n != 0 else 0
+
+
+'''
+    predictions  - DataFrame column with predicted emotions for each test_data_df,
+                 - indexes from 1 to 6
+    expectations - DataFrame column wtih expected emotions, basically test_data_labels
+
+    Computes confusion matrix by incrementing conf_matrix[expectation[i], prediction[i]]
+'''
+def compare_pred_expect(predictions, expectations):
+    confusion_matrix = pd.DataFrame(0, index=cnst.EMOTIONS_INDICES, columns=cnst.EMOTIONS_INDICES)
+    predictions, expectations = predictions.reset_index(drop=True), expectations.reset_index(drop=True)
+
+    for index in predictions.index.values:
+        e = expectations.iloc[index] - 1
+        p = predictions.iloc[index] - 1
+        confusion_matrix.loc[p, e] += 1
+
+    return confusion_matrix
+
+'''
+    tree_predictions - 6 predictions from the 6 decisin trees for one emotion
+    Returns index of best prediction in list, from 0 to 5.
+    Uses random function for the no predictions at all or more than 2 predictions
+''' 
+def choose_prediction(tree_predictions):
+    occurrences = [index for index, value in enumerate(tree_predictions) if value == 1]
+    if len(occurrences) == 1:
+        return occurrences[0]
+    elif len(occurrences) == 0:
+        return rand.randint(0, 5)
+    else:
+        return rand.choice(occurrences)
+
+'''
+    Takes your trained trees (all six) T and the features x2 and 
+    produces a vector of label predictions
+'''
+def test_trees(T, x2):
+    predictions = []
+    for i in x2.index.values:
+        example = x2.loc[i]
+        tree_predictions = []
+        for tree in T:
+            prediction = TreeNode.dfs(tree, example)
+            tree_predictions.append(prediction)
+
+        prediction_choice = choose_prediction(tree_predictions)
+        predictions.append(prediction_choice + 1)
+
+    return pd.DataFrame(predictions)
+
+
+'''
+    Computes a confusion matrix using decison trees only.
+'''
+def compute_confusion_matrix_tree(df_labels, df_data, N):
+    def slice_segments(from_index, to_index):
+        return df_data[from_index : to_index + 1], df_labels[from_index : to_index + 1]
+
+    res = pd.DataFrame(0, index=cnst.EMOTIONS_INDICES, columns=cnst.EMOTIONS_INDICES)
+
+    segments = util.preprocess_for_cross_validation(N)
+
+    for test_seg in segments:
+        print(">> Starting fold... from:", test_seg)
+        print()
+
+        T = []
+        test_df_data, test_df_targets, train_df_data, train_df_targets = util.get_train_test_segs(test_seg, N, slice_segments)
+
+        for e in cnst.EMOTIONS_LIST:
+            print("Building decision tree for emotion...", e)
+            train_binary_targets = util.filter_for_emotion(train_df_targets, cnst.EMOTIONS_DICT[e])
+            root = dtree.decision_tree(train_df_data, set(cnst.AU_INDICES), train_binary_targets)
+            print("Decision tree built. Now appending...\n")
+            T.append(root)
+    
+        print("All decision trees built.\n")
+    
+        predictions = test_trees(T, test_df_data)
+        confusion_matrix = compare_pred_expect(predictions, test_df_targets)
+        res = res.add(confusion_matrix)
+    
+    # res = res.div(10)
+    res = res.div(res.sum(axis=1), axis=0)
+    
+    for e in cnst.EMOTIONS_LIST:
+        print("----------------------------------- MEASUREMENTS -----------------------------------")
+        print(measures.compute_binary_confusion_matrix(res, cnst.EMOTIONS_DICT[e]))
+
+    return res

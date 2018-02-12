@@ -1,6 +1,6 @@
 from node import TreeNode
 import utilities as util
-import decision_tree_maker as dtree
+import decision_tree as dtree
 import constants as cnst
 
 def cross_validation_error(df_labels, N, df_data, segments):

@@ -2,7 +2,7 @@ import unittest
 import main as m
 import numpy as np
 import utilities as util
-import decision_tree_maker as dtree
+import decision_tree as dtree
 import pandas as pd
 import random as rand
 
