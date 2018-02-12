@@ -137,22 +137,22 @@ def compare_pred_expect(predictions, expectations):
 
     return confusion_matrix
 """
-Input: List with length = 6 of tuples of the form (prediction, depth, percentage)
-prediction : Each tree's prediction for one specific example
-depth: The depth at which the perticular prediction was found on the tree
-percentage: The accuracy of that specific tree based on it's performance on the validation data
+    Input: List with length = 6 of tuples of the form (prediction, depth, percentage)
+    prediction : Each tree's prediction for one specific example
+    depth: The depth at which the perticular prediction was found on the tree
+    percentage: The accuracy of that specific tree based on it's performance on the validation data
 
-Output: The most accurate prediction
-Three cases: 1. One tree recognized this emotion(a single "1" value in predictions)
-                => return the index of the tree
-             2. Zero trees recognized this emotion =>
-              First Criteria: Choose tree which decided to not recognize it furthest
-                                away from root (highest depth)
-              Second Criteria: Choose tree with lowest accuracy
-             3. Multiple trees recognized this emotion =>
-               First Criterion: Choose tree which recognized it closest to the root
-                                reason: more generality
-               Second Criterion: Choose tree with highest accuracy
+    Output: The most accurate prediction
+    Three cases: 1. One tree recognized this emotion(a single "1" value in predictions)
+                    => return the index of the tree
+                 2. Zero trees recognized this emotion =>
+                  First Criteria: Choose tree which decided to not recognize it furthest
+                                    away from root (highest depth)
+                  Second Criteria: Choose tree with lowest accuracy
+                 3. Multiple trees recognized this emotion =>
+                   First Criterion: Choose tree which recognized it closest to the root
+                                    reason: more generality
+                   Second Criterion: Choose tree with highest accuracy
 """
 def choose_prediction_random(T_P_D):
     T, predictions, depths = zip*(T_P_D)
@@ -244,8 +244,6 @@ def visualise(df_labels, df_data, N):
 
 def apply_d_tree_parallel(df_labels, df_data, N):
     print(">> Running decision tree algorithm on multiple processes.\n")
-    def slice_segments(from_index, to_index):
-        return df_data[from_index : to_index + 1], df_labels[from_index : to_index + 1]
 
     res = pd.DataFrame(0, index=cnst.EMOTIONS_INDICES, columns=cnst.EMOTIONS_INDICES)
 
@@ -256,7 +254,13 @@ def apply_d_tree_parallel(df_labels, df_data, N):
         print()
 
         T = []
-        test_df_data, test_df_targets, train_df_data, train_df_targets = util.get_train_test_segs(test_seg, N, slice_segments)
+        # Split data into 90% Training and 10% Testing
+        test_df_data, test_df_targets, train_df_data, train_df_targets = util.divide_data(test_seg, N, df_data, df_labels)
+
+        # Further split trainig data into 90% Training and 10% Validation data
+        K = train_df_data.shape[0]
+        segs = util.preprocess_for_cross_validation(K)
+        validation_data, validation_targets, train_data, train_targets = util.divide_data(segs[-1], K, train_df_data, train_df_targets)
 
         processes = []
         queue_list = []
@@ -278,20 +282,47 @@ def apply_d_tree_parallel(df_labels, df_data, N):
         for q in queue_list:
             T.append(q.get()) 
     
+        # Use validation data to set a priority to each tree based on which is more accurate
+        percentage = []
+        T_P = []
+        for e in cnst.EMOTIONS_LIST:
+            print("\nValidation phase for emotion: ", e)
+            validation_binary_targets = util.filter_for_emotion(validation_targets, cnst.EMOTIONS_DICT[e])
+            results = []
+            # Calculate how accurate each tree is when predicting emotions
+            for i in validation_data.index.values:
+                results.append(TreeNode.dfs2(T[cnst.EMOTIONS_DICT[e]- 1], validation_data.loc[i], validation_binary_targets.loc[i].at[0]))
+            ones = results.count(1)
+            percentage.append(ones/len(results))
+            print("Validation phase ended. Priority levels have been set.")
+
         print("All decision trees built.\n")
     
-        predictions = test_trees(T, test_df_data)
+        # List containing (Tree, Percentage) tuples
+        T_P = list(zip(T, percentage))
+
+        predictions = test_trees(T_P, test_df_data)
         confusion_matrix = compare_pred_expect(predictions, test_df_targets)
+
+        print(confusion_matrix)
+        # Print accuracy for each fold
+        diag = sum(pd.Series(np.diag(confusion_matrix),
+                            index=[confusion_matrix.index, confusion_matrix.columns]))
+        sum_all = confusion_matrix.values.sum()
+        accuracy = (diag/sum_all) * 100
+        print("Accuracy:", accuracy)
+
         res = res.add(confusion_matrix)
-    
-    # res = res.div(10)
+        print("Folding ended.\n")
+        print()
+
     res = res.div(res.sum(axis=1), axis=0)
-    
     for e in cnst.EMOTIONS_LIST:
         print("----------------------------------- MEASUREMENTS -----------------------------------")
         print(measures.compute_binary_confusion_matrix(res, cnst.EMOTIONS_DICT[e]))
 
     return res
+    
 
 '''
     Computes a confusion matrix using decison trees only.
@@ -341,9 +372,9 @@ def apply_d_tree(df_labels, df_data, N):
                 results.append(TreeNode.dfs2(T[cnst.EMOTIONS_DICT[e]- 1], validation_data.loc[i], validation_binary_targets.loc[i].at[0]))
             ones = results.count(1)
             percentage.append(ones/len(results))
-            print("Validation phase ended. Priority levels have been set")
+            print("Validation phase ended. Priority levels have been set.")
 
-        print("All decision trees built")
+        print("All decision trees built.\n")
 
         # List containing (Tree, Percentage) tuples
         T_P = list(zip(T, percentage))
@@ -360,7 +391,7 @@ def apply_d_tree(df_labels, df_data, N):
         print("Accuracy:", accuracy)
 
         res = res.add(confusion_matrix)
-        print("Folding ended")
+        print("Folding ended.\n")
         print()
 
     res = res.div(res.sum(axis=1), axis=0)

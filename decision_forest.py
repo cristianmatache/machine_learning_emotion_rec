@@ -61,8 +61,6 @@ def test_forest_trees(forest_T, x2):
 
 def apply_d_forest_parallel(df_labels, df_data, N):
     print(">> Running decision forest algorithm on multiple processes.\n")
-    def slice_segments(from_index, to_index):
-        return df_data[from_index : to_index + 1], df_labels[from_index : to_index + 1]
 
     res = pd.DataFrame(0, index=cnst.EMOTIONS_INDICES, columns=cnst.EMOTIONS_INDICES)
 
@@ -73,7 +71,7 @@ def apply_d_forest_parallel(df_labels, df_data, N):
         print()
 
         forest_T = []
-        test_df_data, test_df_targets, train_df_data, train_df_targets = util.get_train_test_segs(test_seg, N, slice_segments)
+        test_df_data, test_df_targets, train_df_data, train_df_targets = util.divide_data(test_seg, N, df_data, df_labels)
 
         samples = split_in_random(train_df_data, train_df_targets)
         print("Building decision forest...")
