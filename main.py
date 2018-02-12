@@ -8,16 +8,7 @@ import utilities as util
 import decision_tree_maker as dtree
 import decision_forest as forest
 import measures
-
-'''
-    Macros
-'''
-ATTRIBUTES_NUMBER = 45
-EMOTION_DICT = {'anger': 1, 'disgust': 2, 'fear': 3, 'happiness': 4, 'sadness': 5, 'surprise': 6}
-AU_INDICES = list(range(1, ATTRIBUTES_NUMBER + 1))
-NUMBER_OF_EMOTIONS = 6
-EMOTIONS_INDICES = [i for i in range(0, NUMBER_OF_EMOTIONS)]
-EMOTIONS_LIST = ["anger", "disgust", "fear", "happiness", "sadness", "surprise"]
+import constants as cnst
 
 '''
     predictions  - DataFrame column with predicted emotions for each test_data_df,
@@ -27,7 +18,7 @@ EMOTIONS_LIST = ["anger", "disgust", "fear", "happiness", "sadness", "surprise"]
     Computes confusion matrix by incrementing conf_matrix[expectation[i], prediction[i]]
 '''
 def compare_pred_expect(predictions, expectations):
-    confusion_matrix = pd.DataFrame(0, index=EMOTIONS_INDICES, columns=EMOTIONS_INDICES)
+    confusion_matrix = pd.DataFrame(0, index=cnst.EMOTIONS_INDICES, columns=cnst.EMOTIONS_INDICES)
     predictions, expectations = predictions.reset_index(drop=True), expectations.reset_index(drop=True)
 
     for index in predictions.index.values:
@@ -56,25 +47,23 @@ def choose_prediction(tree_predictions):
     produces a vector of label predictions
 '''
 def test_trees(T, x2):
-
-    print("Computing predictions...")
     predictions = []
-
     for i in x2.index.values:
         example = x2.loc[i]
         tree_predictions = []
         for tree in T:
             prediction = TreeNode.dfs(tree, example)
             tree_predictions.append(prediction)
+
         prediction_choice = choose_prediction(tree_predictions)
         predictions.append(prediction_choice + 1)
 
-    print("Predictions computed")
     return pd.DataFrame(predictions)
 
 def choose_majority_vote(all_emotion_prediction):
     M = max(all_emotion_prediction)
     occurrences = [index for index, value in enumerate(all_emotion_prediction) if value == M]
+    
     if len(occurrences) == 1:
         return occurrences[0]
     elif len(occurrences) == 0:
@@ -114,28 +103,28 @@ def compute_confusion_matrix(df_labels, df_data, N):
     def slice_segments(from_index, to_index):
         return df_data[from_index : to_index + 1], df_labels[from_index : to_index + 1]
 
-    res = pd.DataFrame(0, index=EMOTIONS_INDICES, columns=EMOTIONS_INDICES)
+    res = pd.DataFrame(0, index=cnst.EMOTIONS_INDICES, columns=cnst.EMOTIONS_INDICES)
 
     segments = util.preprocess_for_cross_validation(N)
 
     for test_seg in segments:
-        print("Starting fold from:", test_seg)
+        print("Starting fold... from:", test_seg)
         # T = []
         forest_T = []
         test_df_data, test_df_targets, train_df_data, train_df_targets = util.get_train_test_segs(test_seg, N, slice_segments)
 
         samples = forest.split_in_random(train_df_data, train_df_targets)
         print("Building decision forest...")
-        for e in EMOTIONS_LIST:
+        for e in cnst.EMOTIONS_LIST:
             T= []
             for (sample_target, sample_data) in samples:
                 print("Building decision tree for emotion: ", e)
-                train_binary_targets = util.filter_for_emotion(sample_target, EMOTION_DICT[e])
-                root = dtree.decision_tree(sample_data, set(AU_INDICES), train_binary_targets)
+                train_binary_targets = util.filter_for_emotion(sample_target, cnst.EMOTION_DICT[e])
+                root = dtree.decision_tree(sample_data, set(cnst.AU_INDICES), train_binary_targets)
                 print("Decision tree built. Now appending...")
                 T.append(root)
             forest_T.append(T)
-        print("Forest built.")
+        print("Forest built.\n")
         print(forest_T)
 
         predictions_forest = test_forest_trees(forest_T, test_df_data)
@@ -144,10 +133,10 @@ def compute_confusion_matrix(df_labels, df_data, N):
         print(confusion_matrix)
         res = res.add(confusion_matrix)
 
-    #     for e in EMOTIONS_LIST:
+    #     for e in cnst.EMOTIONS_LIST:
     #         print("Building decision tree for emotion: ", e)
-    #         train_binary_targets = util.filter_for_emotion(train_df_targets, EMOTION_DICT[e])
-    #         root = dtree.decision_tree(train_df_data, set(AU_INDICES), train_binary_targets)
+    #         train_binary_targets = util.filter_for_emotion(train_df_targets, cnst.EMOTION_DICT[e])
+    #         root = dtree.decision_tree(train_df_data, set(cnst.AU_INDICES), train_binary_targets)
     #         print("Decision tree built. Now appending...")
     #         T.append(root)
     #
@@ -161,9 +150,9 @@ def compute_confusion_matrix(df_labels, df_data, N):
     #
     # res = res.div(10)
     res = res.div(res.sum(axis=1), axis=0)
-    for e in EMOTIONS_LIST:
+    for e in cnst.EMOTIONS_LIST:
         print("----------------------------------- MEASUREMENTS -----------------------------------")
-        print(measures.compute_binary_confusion_matrix(res, EMOTION_DICT[e]))
+        print(measures.compute_binary_confusion_matrix(res, cnst.EMOTION_DICT[e]))
 
     return res
 
