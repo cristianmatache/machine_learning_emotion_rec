@@ -8,6 +8,24 @@ _file_index = 0
 
 class TreeNode:
 
+
+    '''
+        self.op    - a label for the corresponding node (e.g. the attribute 
+                   - that the node is testing). It must be empty for the leaf node    
+    
+        self.kids  - a cell array which will contain the subtrees that initiate from the
+                   - corresponding node.
+
+
+        self.value - a label for the leaf node. Can have the following possible values:
+                   - 0 - 1: the value of the examples (negative-positive, respectively) if it is the same
+                            for all examples, or with value as it is defined by the MAJORITY-VALUE
+                            function (in the case attributes is empty)
+                   - It must bye empty for an internal node, since the tree returns a label only in the
+                   - leaf node.
+
+    '''
+
     def __init__(self, node_label, leaf=False, value=None):
         self.op = node_label
         self.kids = [None] * 2

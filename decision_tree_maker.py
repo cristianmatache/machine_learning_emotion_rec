@@ -99,10 +99,12 @@ def get_info_gain(p, n):
     if p + n == 0:
         return 0
 
-    term = float(p / (p + n))
-    term2 = float(n / (p + n))
-    return stats.entropy([term, term2], base=2)
+
+    term_1 = float(p / (p + n))
+    term_2 = float(n / (p + n))
+
+    return stats.entropy([term_1, term_2], base=2)
 
 # Remainder(attribute) = (p0 + n0)/(p + n) * I(p0, n0) + (p1 + n1)/(p + n) * I(p1, n1)
 def get_remainder(p, n, p0, n0, p1, n1):
-    return ((p0 + n0)/(p + n)) * get_info_gain(p0, n0) + ((p1 + n1)/(p + n)) * get_info_gain(p1, n1) if p + n != 0 else 0
+    return ((p0 + n0)/(p + n)) * get_info_gain(p0, n0) + ((p1 + n1)/(p + n)) * get_info_gain(p1, n1) if p+n != 0 else 0

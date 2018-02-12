@@ -7,6 +7,7 @@ from node import TreeNode
 import utilities as util
 import decision_tree_maker as dtree
 import decision_forest as forest
+import measures
 
 '''
     Macros
@@ -71,6 +72,36 @@ def test_trees(T, x2):
     print("Predictions computed")
     return pd.DataFrame(predictions)
 
+def choose_majority_vote(all_emotion_prediction):
+    M = max(all_emotion_prediction)
+    occurrences = [index for index, value in enumerate(all_emotion_prediction) if value == M]
+    if len(occurrences) == 1:
+        return occurrences[0]
+    elif len(occurrences) == 0:
+        return rand.randint(0, 5)
+    else:
+        return rand.choice(occurrences)
+
+def test_forest_trees(forest_T, x2):
+    # x2 = test_df_data
+    predictions = []
+    for i in x2.index.values:
+        example = x2.loc[i]
+        all_emotion_prediction = []
+        for T in forest_T:
+            emotion_prediction = []
+            for tree in T: # how emotion vote
+                prediction = TreeNode.dfs(tree, example)
+                emotion_prediction.append(prediction)
+            sum_per_emotion = sum(emotion_prediction)
+            all_emotion_prediction.append(sum_per_emotion)
+        print("*********")
+        print(all_emotion_prediction)
+
+        prediction_choice = choose_majority_vote(all_emotion_prediction)
+        predictions.append(prediction_choice + 1)
+    return pd.DataFrame(predictions)
+
 '''
     Computes a confusion matrix.
     Does N-folds, for each of them the following algo been applied:
@@ -89,34 +120,56 @@ def compute_confusion_matrix(df_labels, df_data, N):
 
     for test_seg in segments:
         print("Starting fold from", test_seg)
-        T = []
+        # T = []
+        forest_T = []
         test_df_data, test_df_targets, train_df_data, train_df_targets = util.get_train_test_segs(test_seg, N, slice_segments)
 
-        forest.split_in_random(train_df_data, train_df_targets)
-
+        samples = forest.split_in_random(train_df_data, train_df_targets)
         for e in EMOTIONS_LIST:
-            print("Building decision tree for emotion: ", e)
-            train_binary_targets = util.filter_for_emotion(train_df_targets, EMOTION_DICT[e])
-            root = dtree.decision_tree(train_df_data, set(AU_INDICES), train_binary_targets)
-            print("Decision tree built. Now appending...")
-            T.append(root)
+            T= []
+            for (sample_target, sample_data) in samples:
+                print("Building decision tree for emotion: ", e)
+                train_binary_targets = util.filter_for_emotion(sample_target, EMOTION_DICT[e])
+                root = dtree.decision_tree(sample_data, set(AU_INDICES), train_binary_targets)
+                print("Decision tree built. Now appending...")
+                T.append(root)
+            forest_T.append(T)
+        print("Forest built")
+        print(forest_T)
 
-        print("All decision trees built")
-
-        predictions = test_trees(T, test_df_data)
-        confusion_matrix = compare_pred_expect(predictions, test_df_targets)
+        predictions_forest = test_forest_trees(forest_T, test_df_data)
+        confusion_matrix = compare_pred_expect(predictions_forest, test_df_targets)
+        print("^^^^^^^^^^^^^^^^^^^CONFUSION MATRIX^^^^^^^^^^^^^^^^^")
+        print(confusion_matrix)
         res = res.add(confusion_matrix)
-        print("Folding ended")
-        print()
 
-    res = res.div(res.sum(axis=1), axis=0)
+    #     for e in EMOTIONS_LIST:
+    #         print("Building decision tree for emotion: ", e)
+    #         train_binary_targets = util.filter_for_emotion(train_df_targets, EMOTION_DICT[e])
+    #         root = dtree.decision_tree(train_df_data, set(AU_INDICES), train_binary_targets)
+    #         print("Decision tree built. Now appending...")
+    #         T.append(root)
+    #
+    #     print("All decision trees built")
+    #
+    #     predictions = test_trees(T, test_df_data)
+    #     confusion_matrix = compare_pred_expect(predictions, test_df_targets)
+    #     res = res.add(confusion_matrix)
+    #     print("Folding ended")
+    #     print()
+    #
+    res = res.div(10)
+    for e in EMOTIONS_LIST:
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print(measures.compute_binary_confusion_matrix(res, EMOTION_DICT[e]))
+
     return res
 
 # Testing
 def main():
     start = time.time()
 
-    labels, data = util.load_raw_data_clean()
+    labels, data = util.load_raw_data_noisy()
     A = np.array(labels)
     labels = [row[0] for row in A]
     df_labels, df_data = util.to_dataframe(labels, data)
