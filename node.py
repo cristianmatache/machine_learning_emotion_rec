@@ -10,9 +10,9 @@ class TreeNode:
 
 
     '''
-        self.op    - a label for the corresponding node (e.g. the attribute 
-                   - that the node is testing). It must be empty for the leaf node    
-    
+        self.op    - a label for the corresponding node (e.g. the attribute
+                   - that the node is testing). It must be empty for the leaf node
+
         self.kids  - a cell array which will contain the subtrees that initiate from the
                    - corresponding node.
 
@@ -80,15 +80,15 @@ class TreeNode:
                 return TreeNode.dfs2(root.kids[1], example, expectation)
 
     @staticmethod
-    def dfs(root, example):
+    def dfs(root, example, depth = 1):
         if root.leaf:
-            return root.value
+            return root.value, depth
         else:
             index = root.op
             if example.loc[index] == 0:
-                return TreeNode.dfs(root.kids[0], example)
+                return TreeNode.dfs(root.kids[0], example, depth+1)
             else:
-                return TreeNode.dfs(root.kids[1], example)
+                return TreeNode.dfs(root.kids[1], example, depth+1)
 
     @staticmethod
     def _dfs_pure(root):

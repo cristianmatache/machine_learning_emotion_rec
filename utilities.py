@@ -1,6 +1,7 @@
 import pandas as pd
 import scipy.io as sio
 import numpy as np
+import main
 
 pd.options.mode.chained_assignment = None
 
@@ -47,7 +48,7 @@ def filter_for_emotion(df, emotion):
     return df_filter
 
 '''
-    Computes list [(start, end)] of the limits of K segments 
+    Computes list [(start, end)] of the limits of K segments
     used in cross validation in a df of length N
 '''
 def preprocess_for_cross_validation(N, K = 10):
@@ -56,23 +57,23 @@ def preprocess_for_cross_validation(N, K = 10):
     segments[-1] = (segments[-1][0], N-1)
     return segments
 '''
-    Slices the initial dataframes (df_data, binary targets) 
+    Slices the initial dataframes (df_data, binary targets)
     into dataframes for training and for testing
 '''
-def get_train_test_segs(test_seg, N, slice_func):
+def get_train_test_segs(test_seg, N, slice_func, df_data, df_labels):
     (test_start, test_end) = test_seg
-    test_df_data, test_df_targets = slice_func(test_start, test_end)
+    test_df_data, test_df_targets = slice_func(test_start, test_end, df_data, df_labels)
 
-    if test_start == 0:                                       
+    if test_start == 0:
         # test is first segment
-        train_df_data, train_df_targets = slice_func(test_end + 1, N-1)
-    elif test_end == N - 1:                                   
+        train_df_data, train_df_targets = slice_func(test_end + 1, N-1, df_data, df_labels)
+    elif test_end == N - 1:
         # test is last segment
-        train_df_data, train_df_targets = slice_func(0, test_start-1)
-    else:                                                     
+        train_df_data, train_df_targets = slice_func(0, test_start-1, df_data, df_labels)
+    else:
         # test is middle segment
-        data_p1,targets_p1 = slice_func(0, test_start-1)
-        data_p2, targets_p2 = slice_func(test_end+1, N-1)
+        data_p1,targets_p1 = slice_func(0, test_start-1, df_data, df_labels)
+        data_p2, targets_p2 = slice_func(test_end+1, N-1, df_data, df_labels)
 
         train_df_data = pd.concat([data_p1, data_p2], axis=0)
         train_df_targets = pd.concat([targets_p1, targets_p2], axis=0)
