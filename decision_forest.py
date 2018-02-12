@@ -56,11 +56,6 @@ def test_forest_trees(forest_T, x2):
 '''
     Computes a confusion matrix using decison forests,
     improving the prediction accuracy.
-    Does N-folds, for each of them the following algo been applied:
-        - take N - 1 training data/training targets
-        - make decision trees
-        - gets the best prediction based on decision trees
-        - compare predictions with expectations (df_test_labels)
 '''
 def compute_confusion_matrix_forest(df_labels, df_data, N):
     def slice_segments(from_index, to_index):
