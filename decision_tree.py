@@ -364,11 +364,6 @@ def apply_d_tree(df_labels, df_data, N):
         print()
 
     res = res.div(res.sum(axis=1), axis=0)
-    print(res)
-    return res
-
-
-
     for e in cnst.EMOTIONS_LIST:
         print("----------------------------------- MEASUREMENTS -----------------------------------")
         print(measures.compute_binary_confusion_matrix(res, cnst.EMOTIONS_DICT[e]))
