@@ -6,7 +6,7 @@ import numpy as np
 
 # N - number of trees in the forest
 # K - number of examples (df_data) used to train each tree
-def split_in_random(train_df_data, train_df_targets, N = 5, K=670):
+def split_in_random(train_df_data, train_df_targets, N = 8, K=660):
     TOTAL = train_df_targets.shape[0]
 
     df = pd.concat([train_df_targets, train_df_data], axis=1)
@@ -16,10 +16,11 @@ def split_in_random(train_df_data, train_df_targets, N = 5, K=670):
         # df = df.loc[~df.index.isin(sample.index)]
         sample_target = sample.iloc[:, :1]
         sample_data = sample.iloc[:, 1:]
-        samples.append((sample_target, sample_data))
+        samples.append((sample_target.reset_index(drop=True), sample_data.reset_index(drop=True)))
 
+    # print("SAMPLES /////////////////////////")
     # print(samples)
-    return samples, N
+    return samples
 
 
 
