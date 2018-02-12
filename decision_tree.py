@@ -167,7 +167,7 @@ def test_trees(T, x2):
     return pd.DataFrame(predictions)
 
 def apply_d_tree_parallel(df_labels, df_data, N):
-    print("Running decision tree algorithm on multiple processes.")
+    print(">> Running decision tree algorithm on multiple processes.\n")
     pass
 
 '''
@@ -179,7 +179,7 @@ def apply_d_tree_parallel(df_labels, df_data, N):
         - compare predictions with expectations (df_test_labels)    
 '''
 def apply_d_tree(df_labels, df_data, N):
-    print("Running decision tree algorithm on a single process.")
+    print(">> Running decision tree algorithm on a single process.\n")
 
     def slice_segments(from_index, to_index):
         return df_data[from_index : to_index + 1], df_labels[from_index : to_index + 1]

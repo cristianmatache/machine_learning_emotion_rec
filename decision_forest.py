@@ -55,7 +55,7 @@ def test_forest_trees(forest_T, x2):
     return pd.DataFrame(predictions)
 
 def apply_d_forest_parallel(df_labels, df_data, N):
-    print("Running decision forest algorithm on multiple processes.")
+    print(">> Running decision forest algorithm on multiple processes.\n")
     pass
 
 '''
@@ -63,7 +63,7 @@ def apply_d_forest_parallel(df_labels, df_data, N):
     improving the prediction accuracy.
 '''
 def apply_d_forest(df_labels, df_data, N):
-    print("Running decision forest algorithm on a single process.")
+    print(">> Running decision forest algorithm on a single process.\n")
     def slice_segments(from_index, to_index):
         return df_data[from_index : to_index + 1], df_labels[from_index : to_index + 1]
 
