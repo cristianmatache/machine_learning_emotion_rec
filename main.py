@@ -170,7 +170,7 @@ def compute_confusion_matrix(df_labels, df_data, N):
 def main():
     start = time.time()
 
-    labels, data = util.load_raw_data_clean()
+    labels, data = util.load_raw_data_noisy()
     A = np.array(labels)
     labels = [row[0] for row in A]
     df_labels, df_data = util.to_dataframe(labels, data)

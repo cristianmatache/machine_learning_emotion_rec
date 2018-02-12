@@ -43,7 +43,7 @@ d = {0: [0.606061, 0.060606, 0.092437, 0.013889, 0.136364, 0.019324],
      5: [0.045455, 0.050505, 0.142857, 0.032407, 0.015152, 0.821256]}
 
 confusion_matrix_MOCK = pd.DataFrame(data=d)
-print(compute_binary_confusion_matrix(confusion_matrix_MOCK, 6))
+# print(compute_binary_confusion_matrix(confusion_matrix_MOCK, 6))
 
 # Mock of confusion matrix
 # d = {0: [0.613636, 0.095960, 0.075630, 0.009259, 0.166667, 0.009662],
