@@ -2,6 +2,13 @@ import sys
 import pandas as pd
 import scipy.stats as stats
 from node import TreeNode
+from multiprocessing import Queue
+
+def decision_tree_queue(examples, attributes, bin_targets, queue):
+    print("Decision tree queueu")
+    root = decision_tree(examples, attributes, bin_targets)
+    print("Root done", str(root))
+    queue.put(root)
 
 '''
     Decision tree learning

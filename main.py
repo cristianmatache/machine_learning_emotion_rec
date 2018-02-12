@@ -8,6 +8,8 @@ import utilities as util
 import decision_tree_maker as dtree
 import decision_forest as forest
 import measures
+from multiprocessing import Process
+from multiprocessing import Queue
 
 '''
     Macros
@@ -82,19 +84,91 @@ def choose_majority_vote(all_emotion_prediction):
     else:
         return rand.choice(occurrences)
 
+def vote_and_sum_per_emotion(T, example):
+    emotion_prediction = []
+
+    processes = []
+    queue_list = []
+
+    for tree in T: # how emotion vote
+        
+        q = Queue()
+        queue_list.append(q)
+
+        process = Process(target=TreeNode.dfs_queue, args=(tree, example, q))
+        processes.append(process)
+
+        process.start()
+
+        # prediction = TreeNode.dfs(tree, example)
+        # emotion_prediction.append(prediction)
+
+    for p in processes:
+        p.join()
+
+    for q in queue_list:
+        emotion_prediction.append(q.get())
+
+    return sum(emotion_prediction)
+
+def vote_queue(T, example, queue):
+    sum_per_emotion = sum(spawn_process(T, TreeNode.dfs_queue, example))
+    # sum_per_emotion = vote_and_sum_per_emotion(T, example)
+    queue.put(sum_per_emotion)
+
+def spawn_process(list_t, function, example):
+    processes = []
+    queue_list = []
+    result = []
+
+    for l in list_t:
+        q = Queue()
+        queue_list.append(q)
+
+        process = Process(target=function, args=(l, example, q))
+        processes.append(process)
+        process.start()
+
+    for p in processes:
+        p.join()
+
+    for q in queue_list:
+        result.append(q.get())    
+
+    return result
+
 def test_forest_trees(forest_T, x2):
     # x2 = test_df_data
     predictions = []
     for i in x2.index.values:
         example = x2.loc[i]
         all_emotion_prediction = []
-        for T in forest_T:
-            emotion_prediction = []
-            for tree in T: # how emotion vote
-                prediction = TreeNode.dfs(tree, example)
-                emotion_prediction.append(prediction)
-            sum_per_emotion = sum(emotion_prediction)
-            all_emotion_prediction.append(sum_per_emotion)
+
+        all_emotion_prediction = spawn_process(forest_T, vote_queue, example)
+
+        # processes = []
+        # queue_list = []
+
+        # for T in forest_T:
+
+        #     q = Queue()
+        #     queue_list.append(q)
+
+        #     process = Process(target=vote_queue, args=(T, example, q))
+
+        #     processes.append(process)
+
+        #     process.start()
+
+        #     # sum_per_emotion = vote_and_sum_per_emotion(T, example)
+        #     # all_emotion_prediction.append(sum_per_emotion)
+
+        # for p in processes:
+        #     p.join()
+
+        # for q in queue_list:
+        #     all_emotion_prediction.append(q.get())
+
         print("----------------------------------- ALL EMOTION PREDICTIONS -----------------------------------\n")
         print(all_emotion_prediction)
 
@@ -128,12 +202,28 @@ def compute_confusion_matrix(df_labels, df_data, N):
         print("Building decision forest...")
         for e in EMOTIONS_LIST:
             T= []
+
+            processes = []
+            queue_list = []
+
             for (sample_target, sample_data) in samples:
                 print("Building decision tree for emotion: ", e)
                 train_binary_targets = util.filter_for_emotion(sample_target, EMOTION_DICT[e])
-                root = dtree.decision_tree(sample_data, set(AU_INDICES), train_binary_targets)
-                print("Decision tree built. Now appending...")
-                T.append(root)
+                # root = dtree.decision_tree(sample_data, set(AU_INDICES), train_binary_targets)
+                q = Queue()
+                queue_list.append(q)
+                process = Process(target=dtree.decision_tree_queue, args=(sample_data, set(AU_INDICES), train_binary_targets, q))
+                processes.append(process)
+                process.start()
+                # print("Decision tree built. Now appending...")
+                # T.append(root)
+
+            for process in processes:
+                process.join()
+
+            for q in queue_list:
+                T.append(q.get())
+
             forest_T.append(T)
         print("Forest built.")
         print(forest_T)

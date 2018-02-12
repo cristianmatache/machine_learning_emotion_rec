@@ -3,13 +3,15 @@ import numpy as np
 # from sklearn.model_selection import train_test_split
 
 '''
+    TODO: is it 7 or 6?
     Randomly sample 7 elements from your dataframe
 
     N - number of trees in the forest
     K - number of examples (df_data) used to train each tree
 '''
 def split_in_random(train_df_data, train_df_targets, N = 6, K=500):
-    TOTAL = train_df_targets.shape[0]
+    # TODO: Remove this maybe? It is unused
+    # TOTAL = train_df_targets.shape[0]
 
     df = pd.concat([train_df_targets, train_df_data], axis=1)
     samples = []

@@ -1,4 +1,5 @@
 import plot
+from multiprocessing import Queue
 
 # Tree Structure - TreeNode in Decision Tree
 _node_index = 0
@@ -87,6 +88,11 @@ class TreeNode:
                 return TreeNode.dfs(root.kids[0], example)
             else:
                 return TreeNode.dfs(root.kids[1], example)
+
+    @staticmethod
+    def dfs_queue(root, example, queue):
+        val = TreeNode.dfs(root, example)
+        queue.put(val)
 
     @staticmethod
     def _dfs_pure(root):
