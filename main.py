@@ -7,7 +7,7 @@ import utilities as util
 import decision_tree as dtree
 import decision_forest as dforest
 
-WRONG_ARGUMENTS_MSG = 'Wrong arguments. See decision_trees_help.sh for the right format of arguments.'
+WRONG_ARGUMENTS_MSG = 'Wrong arguments.'
 
 def convert_arguments():
 

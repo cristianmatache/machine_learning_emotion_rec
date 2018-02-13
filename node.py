@@ -144,10 +144,10 @@ class TreeNode:
                 else:
                     next_level.append(TreeNode("'#'"))
             current_level = next_level
-
-    def save_to_file(self, name):
+    @staticmethod
+    def save_tree(tree, name):
         with open(str(name) + ".p", 'wb') as f:
-            pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
+            pickle.dump(tree, f, pickle.HIGHEST_PROTOCOL)
 
 
     @staticmethod

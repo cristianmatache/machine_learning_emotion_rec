@@ -82,8 +82,6 @@ def test_forest_trees(forest_T, x2):
             sum_per_emotion = sum(emotion_prediction)
             sum_depths = sum(depths)
             all_emotion_prediction.append((sum_per_emotion, sum_depths))
-        print("----------------------------------- ALL EMOTION PREDICTIONS -----------------------------------\n")
-        print(all_emotion_prediction)
 
         prediction_choice = choose_majority_vote_optimised(all_emotion_prediction)
         predictions.append(prediction_choice + 1)

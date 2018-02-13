@@ -282,7 +282,7 @@ def apply_d_tree_parallel(df_labels, df_data, N):
 
         for q in queue_list:
             T.append(q.get())
-    
+
         # Use validation data to set a priority to each tree based on which is more accurate
         percentage = []
         T_P = []

@@ -97,11 +97,21 @@ def divide_data(test_seg, N, df_data, df_labels):
 def save_trees_to_file(trees):
     os.makedirs(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'trees'), exist_ok=True)
     for i in range(len(trees)):
-        trees[i].save_to_file('trees/tree_' + str(i))
+        TreeNode.save_tree(trees[i], 'trees/tree_' + str(i))
 
+def save_forest_to_file(trees):
+    os.makedirs(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'trees'), exist_ok=True)
+    for i in range(len(trees)):
+        TreeNode.save_tree(trees[i], 'trees/forest_' + str(i))
 
 def load_trees(nr_of_trees):
     trees = []
     for i in range(nr_of_trees):
         trees.append(TreeNode.load_tree("trees/tree_" + str(i)))
+    return trees
+
+def load_forest(nr_of_trees):
+    trees = []
+    for i in range(nr_of_trees):
+        trees.append(TreeNode.load_tree("trees/forest_" + str(i)))
     return trees
