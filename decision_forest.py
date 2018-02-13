@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import random as rand
 from multiprocessing import Process
 from multiprocessing import Queue
@@ -14,7 +15,7 @@ from node import TreeNode
     N - number of trees in the forest
     K - number of examples (df_data) used to train each tree
 '''
-def split_in_random(train_df_data, train_df_targets, N = 6, K=500):
+def split_in_random(train_df_data, train_df_targets, N = 10, K=500):
     df = pd.concat([train_df_targets, train_df_data], axis=1)
     samples = []
     for i in range(N):
@@ -61,8 +62,6 @@ def test_forest_trees(forest_T, x2):
 
 def apply_d_forest_parallel(df_labels, df_data, N):
     print(">> Running decision forest algorithm on multiple processes.\n")
-    def slice_segments(from_index, to_index):
-        return df_data[from_index : to_index + 1], df_labels[from_index : to_index + 1]
 
     res = pd.DataFrame(0, index=cnst.EMOTIONS_INDICES, columns=cnst.EMOTIONS_INDICES)
 
@@ -73,7 +72,7 @@ def apply_d_forest_parallel(df_labels, df_data, N):
         print()
 
         forest_T = []
-        test_df_data, test_df_targets, train_df_data, train_df_targets = util.get_train_test_segs(test_seg, N, slice_segments)
+        test_df_data, test_df_targets, train_df_data, train_df_targets = util.divide_data(test_seg, N, df_data, df_labels)
 
         samples = split_in_random(train_df_data, train_df_targets)
         print("Building decision forest...")
@@ -109,6 +108,12 @@ def apply_d_forest_parallel(df_labels, df_data, N):
         print("----------------------------------- CONFUSION MATRIX -----------------------------------\n")
         print(confusion_matrix)
         res = res.add(confusion_matrix)
+
+    diag_res = sum(pd.Series(np.diag(res),
+                        index=[res.index, res.columns]))
+    sum_all_res = res.values.sum()
+    accuracy_res = (diag_res/sum_all_res) * 100
+    print("-----------------------------------  AVERAGE ACCURACY -----------------------------------\n:", accuracy_res)
 
     # res = res.div(10)
     res = res.div(res.sum(axis=1), axis=0)
@@ -155,6 +160,12 @@ def apply_d_forest(df_labels, df_data, N):
         print("----------------------------------- CONFUSION MATRIX -----------------------------------\n")
         print(confusion_matrix)
         res = res.add(confusion_matrix)
+
+    diag_res = sum(pd.Series(np.diag(res),
+                        index=[res.index, res.columns]))
+    sum_all_res = res.values.sum()
+    accuracy_res = (diag_res/sum_all_res) * 100
+    print("-----------------------------------  AVERAGE ACCURACY -----------------------------------\n:", accuracy_res)
 
     # res = res.div(10)
     res = res.div(res.sum(axis=1), axis=0)
