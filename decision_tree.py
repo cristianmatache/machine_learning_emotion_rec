@@ -281,9 +281,25 @@ def apply_d_tree_parallel(df_labels, df_data, N):
         for q in queue_list:
             T.append(q.get())
 
+        # Use validation data to set a priority to each tree based on which is more accurate
+        percentage = []
+        T_P = []
+        for e in cnst.EMOTIONS_LIST:
+            print("\nValidation phase for emotion: ", e)
+            validation_binary_targets = util.filter_for_emotion(validation_targets, cnst.EMOTIONS_DICT[e])
+            results = []
+            # Calculate how accurate each tree is when predicting emotions
+            for i in validation_data.index.values:
+                results.append(TreeNode.dfs2(T[cnst.EMOTIONS_DICT[e]- 1], validation_data.loc[i], validation_binary_targets.loc[i].at[0]))
+            ones = results.count(1)
+            percentage.append(ones/len(results))
+            print("Validation phase ended. Priority levels have been set.")
+
         print("All decision trees built.\n")
 
-        predictions = test_trees(T, test_df_data)
+        T_P = list(zip(T, percentage))
+
+        predictions = test_trees(T_P, test_df_data)
         confusion_matrix = compare_pred_expect(predictions, test_df_targets)
 
         print(confusion_matrix)
