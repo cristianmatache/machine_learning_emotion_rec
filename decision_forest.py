@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import random as rand
+import sys
 from multiprocessing import Process
 from multiprocessing import Queue
 
@@ -25,8 +26,8 @@ def split_in_random(train_df_data, train_df_targets, N = 10, K=500):
         samples.append((sample_target.reset_index(drop=True), sample_data.reset_index(drop=True)))
     return samples
 
-def choose_majority_vote(all_emotion_prediction):
-    # TODO: make other heuristics for majority vote apart from random when equality between max's
+def choose_majority_vote_random(predictions_depths):
+    all_emotion_prediction, depths = zip(*predictions_depths)
     M = max(all_emotion_prediction)
     occurrences = [index for index, value in enumerate(all_emotion_prediction) if value == M]
 
@@ -36,6 +37,31 @@ def choose_majority_vote(all_emotion_prediction):
         return rand.randint(0, 5)
     else:
         return rand.choice(occurrences)
+
+def choose_majority_vote_optimised(predictions_depths):
+    all_emotion_prediction, depths = zip(*predictions_depths)
+    M = max(all_emotion_prediction)
+    occurrences = [index for index, value in enumerate(all_emotion_prediction) if value == M]
+
+    if len(occurrences) == 1:
+        return occurrences[0]
+    elif len(occurrences) == 0:
+        MAX = 0
+        index = 0
+        for i in range(0, len(depths)):
+            if depths[i] > MAX:
+                MAX = depths[i]
+                index = i
+        return index
+    else:
+        MIN = sys.maxsize
+        index = 0
+        for i in occurrences:
+            if depths[i] < MIN:
+                MIN = depths[i]
+                index = i
+        return index
+
 
 '''
     x2 = test_df_data
@@ -47,16 +73,19 @@ def test_forest_trees(forest_T, x2):
         all_emotion_prediction = []
         for T in forest_T:
             emotion_prediction = []
+            depths = []
             for tree in T:
                 # how emotion votes
-                prediction = TreeNode.dfs(tree, example)
+                prediction, depth = TreeNode.dfs_with_depth(tree, example)
                 emotion_prediction.append(prediction)
+                depths.append(depth)
             sum_per_emotion = sum(emotion_prediction)
-            all_emotion_prediction.append(sum_per_emotion)
+            sum_depths = sum(depths)
+            all_emotion_prediction.append((sum_per_emotion, sum_depths))
         print("----------------------------------- ALL EMOTION PREDICTIONS -----------------------------------\n")
         print(all_emotion_prediction)
 
-        prediction_choice = choose_majority_vote(all_emotion_prediction)
+        prediction_choice = choose_majority_vote_optimised(all_emotion_prediction)
         predictions.append(prediction_choice + 1)
     return pd.DataFrame(predictions)
 

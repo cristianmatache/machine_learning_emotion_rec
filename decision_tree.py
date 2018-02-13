@@ -231,7 +231,7 @@ def test_trees(T_P, x2):
             prediction, depth = TreeNode.dfs_with_depth(T[j], example)
             T_P_D.append([prediction, P[j], depth])
 
-        prediction_choice = choose_prediction_random(T_P_D)
+        prediction_choice = choose_prediction_optimised(T_P_D)
         predictions.append(prediction_choice + 1)
 
     return pd.DataFrame(predictions)
