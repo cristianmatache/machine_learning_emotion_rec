@@ -1,6 +1,9 @@
 import pandas as pd
 import scipy.io as sio
 import constants as cnst
+import os
+
+from node import TreeNode
 
 pd.options.mode.chained_assignment = None
 
@@ -88,3 +91,17 @@ def divide_data(test_seg, N, df_data, df_labels):
         train_df_targets = pd.concat([targets_p1, targets_p2], axis=0)
 
     return test_df_data, test_df_targets, train_df_data, train_df_targets
+
+# ------------------ TREE SERIALIZATION ------------------
+
+def save_trees_to_file(trees):
+    os.makedirs(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'trees'), exist_ok=True)
+    for i in range(len(trees)):
+        trees[i].save_to_file('trees/tree_' + str(i))
+
+
+def load_trees(nr_of_trees):
+    trees = []
+    for i in range(nr_of_trees):
+        trees.append(TreeNode.load_tree("trees/tree_" + str(i)))
+    return trees

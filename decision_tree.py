@@ -221,13 +221,15 @@ def choose_prediction_optimised(pred_proc_depth):
     produces a vector of label predictions
 '''
 def test_trees(T_P, x2):
+
     T, P = zip(*T_P)
+
     predictions = []
 
     for i in x2.index.values:
         example = x2.loc[i]
         T_P_D = []
-        for j in range(0, 6):
+        for j in range(0, len(T_P)):
             prediction, depth = TreeNode.dfs_with_depth(T[j], example)
             T_P_D.append([prediction, P[j], depth])
 
@@ -280,7 +282,7 @@ def apply_d_tree_parallel(df_labels, df_data, N):
 
         for q in queue_list:
             T.append(q.get())
-
+    
         # Use validation data to set a priority to each tree based on which is more accurate
         percentage = []
         T_P = []

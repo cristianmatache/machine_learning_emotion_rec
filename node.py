@@ -1,5 +1,6 @@
 import plot
 from multiprocessing import Queue
+import pickle
 
 # Tree Structure - TreeNode in Decision Tree
 _node_index = 0
@@ -143,3 +144,13 @@ class TreeNode:
                 else:
                     next_level.append(TreeNode("'#'"))
             current_level = next_level
+
+    def save_to_file(self, name):
+        with open(str(name) + ".p", 'wb') as f:
+            pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
+
+
+    @staticmethod
+    def load_tree(name):
+        with open(str(name) + ".p", "rb") as f:
+            return pickle.load(f)
