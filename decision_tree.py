@@ -154,13 +154,16 @@ def compare_pred_expect(predictions, expectations):
                                     reason: more generality
                    Second Criterion: Choose tree with highest accuracy
 """
-def choose_prediction_random(T_P_D):
-    T, predictions, depths = zip(*T_P_D)
+def choose_prediction_random(pred_proc_depth):
+    predictions, proc, depths = zip(*pred_proc_depth)
     occurrences = [index for index, value in enumerate(predictions) if value == 1]
     if len(occurrences) == 1:
         return occurrences[0]
     elif len(occurrences) == 0:
         return rand.randint(0, 5)
+    else:
+        return rand.choice(occurrences)
+
 
 def choose_prediction_optimised(pred_proc_depth):
     predictions, proc, depths  = zip(*pred_proc_depth)
@@ -228,7 +231,7 @@ def test_trees(T_P, x2):
             prediction, depth = TreeNode.dfs_with_depth(T[j], example)
             T_P_D.append([prediction, P[j], depth])
 
-        prediction_choice = choose_prediction_optimised(T_P_D)
+        prediction_choice = choose_prediction_random(T_P_D)
         predictions.append(prediction_choice + 1)
 
     return pd.DataFrame(predictions)
