@@ -155,7 +155,7 @@ Three cases: 1. One tree recognized this emotion(a single "1" value in predictio
                Second Criterion: Choose tree with highest accuracy
 """
 def choose_prediction_random(T_P_D):
-    T, predictions, depths = zip*(T_P_D)
+    T, predictions, depths = zip(*T_P_D)
     occurrences = [index for index, value in enumerate(predictions) if value == 1]
     if len(occurrences) == 1:
         return occurrences[0]
@@ -171,12 +171,10 @@ def choose_prediction_optimised(pred_proc_depth):
     elif len(indexes) == 0:
         res = 0
         MAX = 0
-        index = 0
         max_depth_indexes = []
         for i in range(0, len(depths)):
             if depths[i] > MAX:
                 MAX = depths[i]
-                index = i
                 del max_depth_indexes[:]
                 max_depth_indexes.append(i)
             elif depths[i] == MAX:
@@ -195,12 +193,10 @@ def choose_prediction_optimised(pred_proc_depth):
     else:
         res = 0
         MIN = 10000
-        index = 0
         max_depth_indexes = []
         for i in indexes:
             if depths[i] < MIN:
                 MIN = depths[i]
-                index = i
                 del max_depth_indexes[:]
                 max_depth_indexes.append(i)
             elif depths[i] == MIN:
@@ -218,7 +214,7 @@ def choose_prediction_optimised(pred_proc_depth):
         return res
 
 '''
-    Takes your trained trees (all six) T and the features x2 and
+    Takes your trained trees (all six) T and their Precision and the features x2 and
     produces a vector of label predictions
 '''
 def test_trees(T_P, x2):
@@ -264,7 +260,7 @@ def apply_d_tree_parallel(df_labels, df_data, N):
         for e in cnst.EMOTIONS_LIST:
             print("Building decision tree for emotion...", e)
             train_binary_targets = util.filter_for_emotion(train_df_targets, cnst.EMOTIONS_DICT[e])
-            
+
             q = Queue()
             queue_list.append(q)
 
@@ -276,17 +272,17 @@ def apply_d_tree_parallel(df_labels, df_data, N):
             p.join()
 
         for q in queue_list:
-            T.append(q.get()) 
-    
+            T.append(q.get())
+
         print("All decision trees built.\n")
-    
+
         predictions = test_trees(T, test_df_data)
         confusion_matrix = compare_pred_expect(predictions, test_df_targets)
         res = res.add(confusion_matrix)
-    
+
     # res = res.div(10)
     res = res.div(res.sum(axis=1), axis=0)
-    
+
     for e in cnst.EMOTIONS_LIST:
         print("----------------------------------- MEASUREMENTS -----------------------------------")
         print(measures.compute_binary_confusion_matrix(res, cnst.EMOTIONS_DICT[e]))
@@ -307,7 +303,7 @@ def apply_d_tree(df_labels, df_data, N):
     res = pd.DataFrame(0, index=cnst.EMOTIONS_INDICES, columns=cnst.EMOTIONS_INDICES)
 
     segments = util.preprocess_for_cross_validation(N)
-
+    total_accuracy = 0
     for test_seg in segments:
         print(">> Starting fold... from:", test_seg)
         print()
@@ -357,12 +353,13 @@ def apply_d_tree(df_labels, df_data, N):
                             index=[confusion_matrix.index, confusion_matrix.columns]))
         sum_all = confusion_matrix.values.sum()
         accuracy = (diag/sum_all) * 100
+        total_accuracy += accuracy
         print("Accuracy:", accuracy)
 
         res = res.add(confusion_matrix)
         print("Folding ended")
         print()
-
+    print("Total accuracy:", accuracy)
     res = res.div(res.sum(axis=1), axis=0)
     print(res)
     return res
