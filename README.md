@@ -15,6 +15,22 @@ sudo pip3 install -r requirements.txt
 
 It will install pip3 alognside the following libraries: networkx, matplotlib, pandas, scipy, numpy.
 
+
+## Testing the decision trees with new data
+
+You can test our implementation of decision trees and decision forest by inputing
+the path to the .mat file you want to test in the following way:
+
+To test decision trees implementation:
+  '''
+  python3 test.py PATH_TO_FILE tree
+  '''
+
+To test decision forest implementation:
+  '''
+  python3 test.py PATH_TO_FILE forest
+  '''
+
 ## Running the algorithms
 
 We provide a command-line based program. The default command, which will run the decision forest algorithm on the Data/cleandata_students.mat is:
@@ -55,7 +71,7 @@ Visualisation will create (if not already created) a directory called "plots" wh
 
 ## Authors
 
-* **Adrian Catana** 
-* **Andrei Isaila** 
-* **Cristian Matache** 
+* **Adrian Catana**
+* **Andrei Isaila**
+* **Cristian Matache**
 * **Oana Ciocioman**
