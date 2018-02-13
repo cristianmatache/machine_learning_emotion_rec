@@ -127,8 +127,6 @@ def apply_d_forest_parallel(df_labels, df_data, N):
                 T.append(q.get())
 
             forest_T.append(T)
-        print("Forest built.\n")
-        print(forest_T)
 
         predictions_forest = test_forest_trees(forest_T, test_df_data)
         confusion_matrix = dtree.compare_pred_expect(predictions_forest, test_df_targets)
@@ -179,8 +177,6 @@ def apply_d_forest(df_labels, df_data, N):
                 print("Decision tree built. Now appending...\n")
                 T.append(root)
             forest_T.append(T)
-        print("Forest built.\n")
-        print(forest_T)
 
         predictions_forest = test_forest_trees(forest_T, test_df_data)
         confusion_matrix = dtree.compare_pred_expect(predictions_forest, test_df_targets)

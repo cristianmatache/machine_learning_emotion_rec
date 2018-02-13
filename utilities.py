@@ -12,7 +12,7 @@ pd.options.mode.chained_assignment = None
 '''
     Loading data from mat files
 '''
-def _load_raw_data(path):
+def load_raw_data(path):
     print("Loading raw data...")
     mat_contents = sio.loadmat(path)
     data = mat_contents['x']   # entries/lines which contain the activated AU/muscles
@@ -21,10 +21,10 @@ def _load_raw_data(path):
     return labels, data
 
 def load_raw_data_clean():
-    return _load_raw_data(cnst.CLEAN_DATA_PATH)
+    return load_raw_data(cnst.CLEAN_DATA_PATH)
 
 def load_raw_data_noisy():
-    return _load_raw_data(cnst.NOISY_DATA_PATH)
+    return load_raw_data(cnst.NOISY_DATA_PATH)
 
 
 # ------------------ DATA MANIPULATION ------------------

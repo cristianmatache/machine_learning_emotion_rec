@@ -151,13 +151,6 @@ def convert_arguments():
 
 def main():
 
-    START_TIME = time.time()
-
-    labels, data = util.load_raw_data_clean()
-    A = np.array(labels)
-    labels = [row[0] for row in A]
-    df_labels, df_data = util.to_dataframe(labels, data)
-
     if len(sys.argv) < 1:
         print("Please insert the name of the file you want to test on")
         sys.exit()
@@ -165,6 +158,15 @@ def main():
         print("Examples are being tested on forest implementation by default")
 
     TEST_FILE = sys.argv[1]
+
+
+    START_TIME = time.time()
+
+    labels, data = util.load_raw_data(TEST_FILE)
+    A = np.array(labels)
+    labels = [row[0] for row in A]
+    df_labels, df_data = util.to_dataframe(labels, data)
+
     algorithm = convert_arguments()
 
     res = algorithm(df_labels, df_data)
